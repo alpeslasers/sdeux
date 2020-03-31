@@ -4,7 +4,7 @@ Initialize the logger
 
 Created on March 31, 2020
 
-Copyright Alpes Lasers SA, Neuchatel, Switzerland, 2020
+Copyright Alpes Lasers SA, Saint-Blaise, Switzerland, 2020
 
 @author: chiesa
 """
@@ -27,7 +27,7 @@ try:
     from logserviceclient.utils.logger import initLogger
     try:
         initLogger(pkg)
-    except Exception:
-        logging.warning("Log service client was not initialized properly")
+    except Exception as e:
+        logging.debug("Log service client was not initialized properly: {}".format(e))
 except ImportError:
     pass
