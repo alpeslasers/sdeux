@@ -10,7 +10,6 @@ __author__ = 'gregory'
 __copyright__ = "Copyright 2018, Alpes Lasers SA"
 
 
-
 class S2SerialHandler(object):
     def __init__(self, port):
         self._serial = serial.Serial(baudrate=38400, timeout=0.2)

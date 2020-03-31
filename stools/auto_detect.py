@@ -11,6 +11,7 @@ from pirata.drivers.S2.gen2005 import S2 as S2_gen2005
 
 logger = logging.getLogger(__name__)
 
+
 __author__ = 'gregory'
 __copyright__ = "Copyright 2018, Alpes Lasers SA"
 
