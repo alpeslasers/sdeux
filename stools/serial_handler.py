@@ -2,7 +2,7 @@
 
 import logging
 import serial
-from pirata.drivers.S2.communication import END
+from stools.communication import END
 
 logger = logging.getLogger(__name__)
 

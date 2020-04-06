@@ -11,9 +11,9 @@ import logging
 import time
 import threading
 
-from pirata.drivers.base import BaseDriver
-from pirata.utils.synchronize import synchronized
-from pirata.drivers.S2.exceptions import (S2InvalidPulseParamsError, S2InvalidVoltageError, S2OvercurrentError,
+from stools.base import BaseDriver
+from stools.synchronize import synchronized
+from stools.exceptions import (S2InvalidPulseParamsError, S2InvalidVoltageError, S2OvercurrentError,
                                           S2UndervoltageError)
 
 logger = logging.getLogger(__name__)

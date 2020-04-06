@@ -3,11 +3,11 @@
 import logging
 import struct
 
-from pirata.drivers.S2.communication import create_packet, S2Base, S2Payload
-from pirata.drivers.S2.defs import S2_PACKET_INFO
-from pirata.drivers.S2.gen4 import S2 as S2_gen4
-from pirata.drivers.S2.gen5 import S2 as S2_gen5
-from pirata.drivers.S2.gen2005 import S2 as S2_gen2005
+from stools.communication import create_packet, S2Base, S2Payload
+from stools.defs import S2_PACKET_INFO
+from stools.gen4 import S2 as S2_gen4
+from stools.gen5 import S2 as S2_gen5
+from stools.gen2005 import S2 as S2_gen2005
 
 logger = logging.getLogger(__name__)
 

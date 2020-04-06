@@ -5,10 +5,10 @@ import struct
 import math
 import time
 
-from pirata.drivers.S2.exceptions import (S2InvalidVoltageError, S2InvalidPulseParamsError, S2UndervoltageError,
+from stools.exceptions import (S2InvalidVoltageError, S2InvalidPulseParamsError, S2UndervoltageError,
                                           S2OvercurrentError)
-from pirata.drivers.S2.communication import S2Payload, S2Base, create_packet
-from pirata.drivers.S2.defs import S2_PULSING_OFF, S2_PULSING_MODE_A, S2_PULSING_INTERNAL, S2_PULSING_MODE_B, \
+from stools.communication import S2Payload, S2Base, create_packet
+from stools.defs import S2_PULSING_OFF, S2_PULSING_MODE_A, S2_PULSING_INTERNAL, S2_PULSING_MODE_B, \
     S2_PULSING_BURST_EXTERNAL, S2_PULSING_EXTERNAL, S2_STATUS_OK, S2_STATUS_OVERCURRENT, S2_STATUS_UNDERVOLTAGE, \
     S2_PACKET_INFO, S2_PACKET_QUERY_SETTINGS, S2_PACKET_QUERY_CALIBRATION, S2_PACKET_RESET_STATUS_FLAG, S2_PULSING_BURST, \
     S2_PACKET_SET_SETTINGS, S2_OPTION_SPECIAL_BURST_MODES, S2_OPTION_ALT_EXT_INPUT
@@ -381,9 +381,7 @@ class S2(S2Base):
 
 if __name__ == '__main__':
     import serial
-    from pirata.drivers.S2.gen4 import S2
-    #from pirata.drivers.S2.serial_handler import S2SerialHandler
-
+    from stools.serial_handler import S2SerialHandler
     th = S2SerialHandler('/dev/ttyUSB0')
     th.open()
     s2 = S2(th)

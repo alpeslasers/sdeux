@@ -9,8 +9,8 @@ import threading
 import struct
 import logging
 
-from pirata.drivers.S2.communication import S2Payload, create_packet, S2Base
-from pirata.drivers.S2.defs import (S2_PULSING_OFF, S2_PACKET_INFO, S2_PACKET_SET_SETTINGS,
+from stools.communication import S2Payload, create_packet, S2Base
+from stools.defs import (S2_PULSING_OFF, S2_PACKET_INFO, S2_PACKET_SET_SETTINGS,
                                     S2_PACKET_SET_PERSISTENT_SETTINGS,
                                     S2_PACKET_QUERY_SETTINGS, S2_PACKET_UPTIME, S2_PACKET_RESET_STATUS_FLAG,
                                     S2_PACKET_QUERY_CALIBRATION, S2_PACKET_SET_ADVANCED_SETTINGS, S2_STATUS_OVERCURRENT,
@@ -21,7 +21,7 @@ from pirata.drivers.S2.defs import (S2_PULSING_OFF, S2_PACKET_INFO, S2_PACKET_SE
                                     S2_PACKET_SET_CALIBRATION, S2_PULSING_MODE_B4, S2_PULSING_MODE_B6,
                                     S2_PULSING_MODE_B8, S2_PULSING_MODE_CSS, S2_PULSING_MODE_CST, S2_PACKET_BOOTLOADER,
                                     S2_PACKET_ADVANCED_INFO)
-from pirata.drivers.S2.exceptions import (S2UndervoltageError, S2OvercurrentError, S2InvalidVoltageError,
+from stools.exceptions import (S2UndervoltageError, S2OvercurrentError, S2InvalidVoltageError,
                                           S2InvalidPulseParamsError)
 
 logger = logging.getLogger(__name__)
@@ -501,8 +501,7 @@ class S2(S2Base):
 
 if __name__ == '__main__':
     import serial
-    from pirata.drivers.S2.gen5 import S2
-    from pirata.drivers.S2.serial_handler import S2SerialHandler
+    from stools.serial_handler import S2SerialHandler
 
     th = S2SerialHandler('/dev/ttyUSB1')
     # import dms
