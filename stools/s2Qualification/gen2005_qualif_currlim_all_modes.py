@@ -9,19 +9,18 @@ from configuration_manager import gConfig2
 import logging
 
 
-from pirata.drivers.S2.auto_detect import init_driver
-# pip install --upgrade pirata command line to update pirata
-from pirata.drivers.S2.communication import RETRY_NO
-from pirata.drivers.S2.defs import S2_STATUS_OK
-from pirata.drivers.S2.serial_handler import S2SerialHandler
+from stools.auto_detect import init_driver
+from stools.communication import RETRY_NO
+from stools.defs import S2_STATUS_OK
+from stools.serial_handler import S2SerialHandler
 
-from elbit_scripts.s2Qualification.instruments.jura import Jura
-from elbit_scripts.s2Qualification.instruments.oscilloscope import Oscilloscope
-from elbit_scripts.s2Qualification.instruments.power_supply import PowerSupply
-from elbit_scripts.s2Qualification.instruments.multimeter import MultiMeter
-from elbit_scripts.s2Qualification.instruments.waveformgenerator import WaveFormGenerator
-from elbit_scripts.s2Qualification.ssrv_communication import check_sample_in_db, save_measurement
-from elbit_scripts.utils.get_functions import get_s2_name, get_s2_type, get_pulser_info
+from stools.s2Qualification.instruments.jura import Jura
+from stools.s2Qualification.instruments.oscilloscope import Oscilloscope
+from stools.s2Qualification.instruments.power_supply import PowerSupply
+from stools.s2Qualification.instruments.multimeter import MultiMeter
+from stools.s2Qualification.instruments.waveformgenerator import WaveFormGenerator
+from stools.s2Qualification.ssrv_communication import check_sample_in_db, save_measurement
+from stools.utils.get_functions import get_s2_name, get_s2_type, get_pulser_info
 
 ssrv_url = gConfig2.get_url('ssrv_restless')
 logger = logging.getLogger(__name__)

@@ -2,21 +2,21 @@ import time
 from dms import DMSManager
 from configuration_manager import gConfig2
 
-from pirata.drivers.S2.auto_detect import init_driver
+from stools.auto_detect import init_driver
 
-from qualifix.s2Qualification.instruments.jura import Jura
-from qualifix.s2Qualification.instruments.oscilloscope import Oscilloscope
-from qualifix.s2Qualification.instruments.power_supply import PowerSupply
-from qualifix.s2Qualification.instruments.waveformgenerator import WaveFormGenerator
-from qualifix.s2Qualification.measurement_scripts.Laser_output_ON import execute_laser_on_measurement
-from qualifix.s2Qualification.measurement_scripts.mode_AB_pulsing import execute_AB_measurement
-from qualifix.s2Qualification.measurement_scripts.mode_A_pulsing import execute_mode_A_measurement
-from qualifix.s2Qualification.measurement_scripts.mode_B_pulsing import execute_mode_B_measurement
-from qualifix.s2Qualification.measurement_scripts.mode_C_pulsing import execute_mode_C_measurement
-from qualifix.s2Qualification.measurement_scripts.mode_internal_pulsing import execute_internal_measurement
-from qualifix.s2Qualification.measurement_scripts.with_wfg_measurement import execute_wfg_measurement
-from qualifix.s2Qualification.ssrv_communication import ssrv_checkin_sample, save_measurement
-from qualifix.utils.get_functions import get_s2_name, get_s2_type
+from stools.s2Qualification.instruments.jura import Jura
+from stools.s2Qualification.instruments.oscilloscope import Oscilloscope
+from stools.s2Qualification.instruments.power_supply import PowerSupply
+from stools.s2Qualification.instruments.waveformgenerator import WaveFormGenerator
+from stools.s2Qualification.measurement_scripts.Laser_output_ON import execute_laser_on_measurement
+from stools.s2Qualification.measurement_scripts.mode_AB_pulsing import execute_AB_measurement
+from stools.s2Qualification.measurement_scripts.mode_A_pulsing import execute_mode_A_measurement
+from stools.s2Qualification.measurement_scripts.mode_B_pulsing import execute_mode_B_measurement
+from stools.s2Qualification.measurement_scripts.mode_C_pulsing import execute_mode_C_measurement
+from stools.s2Qualification.measurement_scripts.mode_internal_pulsing import execute_internal_measurement
+from stools.s2Qualification.measurement_scripts.with_wfg_measurement import execute_wfg_measurement
+from stools.s2Qualification.ssrv_communication import check_sample_in_db, save_measurement
+from stools.utils.get_functions import get_s2_name, get_s2_type
 
 ssrv_url = gConfig2.get_url('ssrv_restless')
 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
             # Initialize s2 and check if sample in DB
             s2 = init_driver(s2_th)
             s2.set_up()
-            ssrv_checkin_sample(get_s2_name(s2), get_s2_type(s2))
+            check_sample_in_db(get_s2_name(s2), get_s2_type(s2))
 
             # Configure Measurement Internal
             s2config = dict(pulsing_mode='internal', voltage=10, pulse_period=15000, pulse_width=300, current_limit=20)

@@ -9,7 +9,7 @@ import logging
 from time import sleep
 
 from dms import DMSManager
-from pirata.drivers.S2.auto_detect import init_driver
+from stools.auto_detect import init_driver
 
 from stools.utils.s2admin import get_s2, get_calibration
 

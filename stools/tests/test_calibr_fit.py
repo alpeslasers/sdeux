@@ -6,7 +6,7 @@ Copyright Alpes Lasers SA, Switzerland
 """
 import numpy
 from matplotlib import pyplot as plt
-from qualifix.calibr.analyze import fit_volt_calibration
+from stools.calibr.analyze import fit_volt_calibration
 
 __author__ = 'chiesa'
 __copyright__ = "Copyright Alpes Lasers SA"

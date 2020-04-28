@@ -10,15 +10,14 @@ from scipy.integrate import cumtrapz as tpz
 from dms import DMSManager
 from configuration_manager import gConfig2
 
-from pirata.drivers.S2.auto_detect import init_driver
-# pip install --upgrade pirata command line to update pirata
-from pirata.drivers.S2.serial_handler import S2SerialHandler
-from elbit_scripts.s2Qualification.instruments.jura import Jura
-from elbit_scripts.s2Qualification.instruments.oscilloscope import Oscilloscope
-from elbit_scripts.s2Qualification.instruments.power_supply import PowerSupply
-from elbit_scripts.s2Qualification.instruments.multimeter import MultiMeter
-from elbit_scripts.s2Qualification.ssrv_communication import save_measurement
-from elbit_scripts.utils.get_functions import get_s2_name, get_pulser_info
+from stools.auto_detect import init_driver
+from stools.serial_handler import S2SerialHandler
+from stools.s2Qualification.instruments.jura import Jura
+from stools.s2Qualification.instruments.oscilloscope import Oscilloscope
+from stools.s2Qualification.instruments.power_supply import PowerSupply
+from stools.s2Qualification.instruments.multimeter import MultiMeter
+from stools.s2Qualification.ssrv_communication import save_measurement
+from stools.utils.get_functions import get_s2_name, get_pulser_info
 
 ssrv_url = gConfig2.get_url('ssrv_restless')
 

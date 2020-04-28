@@ -9,10 +9,10 @@ import logging
 
 import numpy
 from dms import DMSManager
-from pirata.drivers.S2.auto_detect import init_driver
+from stools.auto_detect import init_driver
 from stools.calibr.analyze import fit_volt_calibration
 from stools.calibr.commands import S2VoltageCalibrationCommand
-from stools.s2Qualification.ssrv_communication import ssrv_checkin_sample
+from stools.s2Qualification.ssrv_communication import check_sample_in_db
 
 from stools.utils.s2admin import get_s2, get_calibration
 
@@ -39,7 +39,7 @@ def main():
         print('name: {}'.format(al_identifier))
         print('software version: {}'.format(s2.sw_version))
         print('hw version: {}'.format(s2.hw_version))
-        ssrv_checkin_sample(al_identifier, s2.hw_version)
+        check_sample_in_db(al_identifier, s2.hw_version)
         board = get_s2(s2.device_id)
         if not board:
             raise Exception('board with serial_number {} not found in database!'.format(s2.device_id))

@@ -2,7 +2,7 @@ import getpass
 import datetime
 from configuration_manager import gConfig2
 import ast
-from elbit_scripts.s2Qualification.ssrv_communication import post_results
+from stools.s2Qualification.ssrv_communication import post_results
 import json
 
 ssrv_url = gConfig2.get_url('ssrv_restless')
