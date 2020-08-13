@@ -16,7 +16,7 @@ from stools.defs import (S2_CURR_LIMIT_MODE_GLOBAL, S2_CURR_LIMIT_MODE_STORED, S
                                     S2_PACKET_QUERY_CALIBRATION, S2_PACKET_SET_ADVANCED_SETTINGS, S2_STATUS_OVERCURRENT,
                                     S2_PULSING_INTERNAL, S2_PULSING_MODE_A, S2_PULSING_MODE_B,
                                     S2_PULSING_BURST, S2_STATUS_OK,
-                                    S2_STATUS_UNDERVOLTAGE, S2_PULSING_MODE_AB,
+                                    S2_STATUS_UNDERVOLTAGE, S2_PULSING_MODE_AUTO,
                                     S2_PACKET_SET_CALIBRATION, S2_PACKET_STORE_CALIBRATION, S2_PACKET_SET_CONFIGURATION,
                                     S2_PACKET_BOOTLOADER, S2_PACKET_QUERY_BIT, S2_PULSING_MODE_CSS, S2_PULSING_MODE_CST,
                                     S2_PULSING_INTERNAL_FAST,
@@ -51,8 +51,8 @@ class S2AdvancedInfo(S2Payload):
 
 class S2Settings(S2Payload):
     __slots__ = ('pulse_period', 'pulse_width', 'output_voltage_set', 'output_current_limit',
-                 'pulsing_mode', 'bias_t', 'burst_ON', 'burst_OFF', 'output_voltage_set_A', 'output_voltage_set_B',
-                 'pulse_width_A', 'pulse_width_B', 'current_limit_mode')
+                 'pulsing_mode', 'bias_t', 'burst_ON', 'burst_OFF', 'output_voltage_set_auto_high', 'output_voltage_set_auto_low',
+                 'pulse_width_auto_high', 'pulse_width_auto_low', 'current_limit_mode')
     _STRUCT = struct.Struct('<IIffHfIIffIIH')
 
     @classmethod
@@ -63,7 +63,7 @@ class S2Settings(S2Payload):
         """
         return S2Settings(pulse_period=500, pulse_width=1, output_voltage_set=1.0,
                           output_current_limit=0.1, pulsing_mode=S2_PULSING_OFF, bias_t=0, burst_ON=0, burst_OFF=0,
-                          output_voltage_set_A=0, output_voltage_set_B=0, pulse_width_A=0, pulse_width_B=0,
+                          output_voltage_set_auto_high=0, ooutput_voltage_set_auto_low=0, pulse_width_auto_high=0, pulse_width_auto_low=0,
                           current_limit_mode=S2_CURR_LIMIT_MODE_GLOBAL)
 
 
@@ -101,17 +101,17 @@ class S2Calibration(S2Payload):
 
 
 class S2Configuration(S2Payload):
-    __slots__ = ('device_id', 'laser_id', 'test_voltage', 'test_min_current', 'test_max_current', 'lasing_min_current',
-                 'internal_limit', 'modea_limit', 'modeb_limit', 'modecst_limit', 'modecss_limit', 'modeab_a_limit',
-                 'modeab_b_limit')
-    _STRUCT = struct.Struct('<I8sfffffffffff')
+    __slots__ = ('device_id', 'laser_id', 'mode_auto_duty_limit_low', 'mode_auto_duty_limit_high', 'mode_auto_high_secur_delay', 'lasing_min_current',
+                 'internal_limit', 'modea_limit', 'modeb_limit', 'modecst_limit', 'modecss_limit', 'mode_auto_high_limit',
+                 'mode_auto_low_limit', 'integr_t_auto')
+    _STRUCT = struct.Struct('<I8sffIffffffffI')
 
 
     @classmethod
     def default(cls):
-        return S2Configuration(device_id=0, laser_id=b'', test_voltage=0, test_min_current=0, test_max_current=0,
+        return S2Configuration(device_id=0, laser_id=b'', mode_auto_duty_limit_low=0.15, mode_auto_duty_limit_high=0.1, mode_auto_high_secur_delay= 1000000,
                                lasing_min_current=0, internal_limit=0, modea_limit=0, modeb_limit=0, modecst_limit=0,
-                               modecss_limit=0, modeab_a_limit=0, modeab_b_limit=0)
+                               modecss_limit=0, mode_auto_high_limit=0, mode_auto_low_limit=0, integr_t_auto=1000000 )
 
 class S2FastPresets(S2Payload):
     __slots__ = ('preset_number', 'pulse_period', 'pulse_width')
@@ -163,7 +163,7 @@ class S2(S2Base):
                             S2_PULSING_MODE_A: 'modeA',
                             S2_PULSING_MODE_B: 'modeB',
                             S2_PULSING_BURST: 'burst_mode',
-                            S2_PULSING_MODE_AB: 'modeAB',
+                            S2_PULSING_MODE_AUTO: 'modeAUTO',
                             S2_PULSING_MODE_CSS: 'modeCSS',
                             S2_PULSING_MODE_CST: 'modeCST',
                             S2_PULSING_INTERNAL_FAST: 'internal_fast'
