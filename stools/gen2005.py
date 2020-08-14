@@ -52,8 +52,8 @@ class S2AdvancedInfo(S2Payload):
 
 class S2Settings(S2Payload):
     __slots__ = ('pulse_period', 'pulse_width', 'output_voltage_set', 'output_current_limit',
-                 'pulsing_mode', 'bias_t', 'burst_ON', 'burst_OFF', 'output_voltage_set_auto_high', 'output_voltage_set_auto_low',
-                 'pulse_width_auto_high', 'pulse_width_auto_low', 'current_limit_mode')
+                 'pulsing_mode', 'bias_t', 'burst_ON', 'burst_OFF', 'output_voltage_set_A', 'output_voltage_set_B',
+                 'pulse_width_A', 'pulse_width_B', 'current_limit_mode')
     _STRUCT = struct.Struct('<IIffHfIIffIIH')
 
     @classmethod
@@ -64,7 +64,7 @@ class S2Settings(S2Payload):
         """
         return S2Settings(pulse_period=500, pulse_width=1, output_voltage_set=1.0,
                           output_current_limit=0.1, pulsing_mode=S2_PULSING_OFF, bias_t=0, burst_ON=0, burst_OFF=0,
-                          output_voltage_set_auto_high=0, output_voltage_set_auto_low=0, pulse_width_auto_high=0, pulse_width_auto_low=0,
+                          output_voltage_set_A=0, output_voltage_set_B=0, pulse_width_A=0, pulse_width_B=0,
                           current_limit_mode=S2_CURR_LIMIT_MODE_GLOBAL)
 
 
@@ -467,8 +467,8 @@ class S2(S2Base):
         self._query_packet(_reset_uptime_packet, expected_response_time=5.0)
 
     def set_settings(self, pulsing_mode=None, voltage=None, pulse_period=None, pulse_width=None, current_limit=None,
-                     output_voltage_set_auto_high=None, output_voltage_set_auto_low=None, pulse_width_auto_high=None, pulse_width_auto_low=None,
-                     burst_ON=None, burst_OFF=None, current_limit_mode =None, persistent = False):
+                     voltage_A=None, voltage_B=None, pulse_width_A=None, pulse_width_B=None,
+                     burst_ON=None, burst_OFF=None, current_limit_mode=None, persistent=False):
         """Set the specified settings. The unspecified parameters (=None) are not changed. Ramps up or down slowly the
         applied voltage"""
         with self._lock:
@@ -493,28 +493,28 @@ class S2(S2Base):
                                                                                            self._min_voltage,
                                                                                            self._max_voltage))
                 if pulsing_mode == S2_PULSING_MODE_A:
-                    self._settings.output_voltage_set_auto_high = voltage
+                    self._settings.output_voltage_set_A = voltage
                 elif pulsing_mode == S2_PULSING_MODE_B:
-                    self._settings.output_voltage_set_auto_low = voltage
+                    self._settings.output_voltage_set_B = voltage
                 elif pulsing_mode == S2_PULSING_MODE_AUTO:
-                    self._settings.output_voltage_set_auto_high = voltage
-                    self._settings.output_voltage_set_auto_low = voltage
+                    self._settings.output_voltage_set_A = voltage
+                    self._settings.output_voltage_set_B = voltage
                 else:
                     self._settings.output_voltage_set = voltage
 
-            if output_voltage_set_auto_high is not None:
-                if not self._min_voltage <= output_voltage_set_auto_high <= self._max_voltage:
-                    raise S2InvalidVoltageError('Voltage A {} out of bounds ({}, {})'.format(output_voltage_set_auto_high,
+            if voltage_A is not None:
+                if not self._min_voltage <= voltage_A <= self._max_voltage:
+                    raise S2InvalidVoltageError('Voltage A {} out of bounds ({}, {})'.format(voltage_A,
                                                                                              self._min_voltage,
                                                                                              self._max_voltage))
-                self._settings.output_voltage_set_auto_high = output_voltage_set_auto_high
+                self._settings.output_voltage_set_A = voltage_A
 
-            if output_voltage_set_auto_low is not None:
-                if not self._min_voltage <= output_voltage_set_auto_low <= self._max_voltage:
-                    raise S2InvalidVoltageError('Voltage B {} out of bounds ({}, {})'.format(output_voltage_set_auto_low,
+            if voltage_B is not None:
+                if not self._min_voltage <= voltage_B <= self._max_voltage:
+                    raise S2InvalidVoltageError('Voltage B {} out of bounds ({}, {})'.format(voltage_B,
                                                                                              self._min_voltage,
                                                                                              self._max_voltage))
-                self._settings.output_voltage_set_auto_low = output_voltage_set_auto_low
+                self._settings.output_voltage_set_B = voltage_B
 
             if pulse_period is not None:
                 if not self._pulse_period_min <= pulse_period <= self._pulse_period_max:
@@ -533,18 +533,18 @@ class S2(S2Base):
                                                         format(pulse_width,
                                                                self._pulse_width_min, self._pulse_width_max))
                 self._settings.pulse_width = int(1e-9 * pulse_width * self._info.pulse_clock_frequency)
-            if pulse_width_auto_high is not None:
-                if not self._pulse_width_min <= pulse_width_auto_high <= self._pulse_width_max:
+            if pulse_width_A is not None:
+                if not self._pulse_width_min <= pulse_width_A <= self._pulse_width_max:
                     raise S2InvalidPulseParamsError('Pulse width {} out of bounds ({}, {})'.
-                                                    format(pulse_width_auto_high,
+                                                    format(pulse_width_A,
                                                            self._pulse_width_min, self._pulse_width_max))
-                self._settings.pulse_width_auto_high = int(1e-9 * pulse_width_auto_high * self._info.pulse_clock_frequency)
-            if pulse_width_auto_low is not None:
-                if not self._pulse_width_min <= pulse_width_auto_low <= self._pulse_width_max:
+                self._settings.pulse_width_A = int(1e-9 * pulse_width_A * self._info.pulse_clock_frequency)
+            if pulse_width_B is not None:
+                if not self._pulse_width_min <= pulse_width_B <= self._pulse_width_max:
                     raise S2InvalidPulseParamsError('Pulse width {} out of bounds ({}, {})'.
-                                                    format(pulse_width_auto_low,
+                                                    format(pulse_width_B,
                                                            self._pulse_width_min, self._pulse_width_max))
-                self._settings.pulse_width_auto_low = int(1e-9 * pulse_width_auto_low * self._info.pulse_clock_frequency)
+                self._settings.pulse_width_B = int(1e-9 * pulse_width_B * self._info.pulse_clock_frequency)
             if current_limit is not None:
                 self._settings.output_current_limit = current_limit
 
