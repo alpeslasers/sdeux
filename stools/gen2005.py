@@ -11,6 +11,7 @@ import logging
 
 from stools.communication import S2Payload, create_packet, S2Base
 from stools.defs import (S2_CURR_LIMIT_MODE_GLOBAL, S2_CURR_LIMIT_MODE_STORED, S2_PULSING_OFF, S2_PACKET_INFO, S2_PACKET_SET_SETTINGS,
+                                    S2_PACKET_QUERY_CONFIGURATION,
                                     S2_PACKET_SET_PERSISTENT_SETTINGS, S2_PACKET_SET_FAST_PRESET, S2_PACKET_DEBUG_INFO,
                                     S2_PACKET_QUERY_SETTINGS, S2_PACKET_UPTIME, S2_PACKET_RESET_STATUS_FLAG,
                                     S2_PACKET_QUERY_CALIBRATION, S2_PACKET_SET_ADVANCED_SETTINGS, S2_STATUS_OVERCURRENT,
@@ -134,6 +135,7 @@ _packet_type_to_payload = {S2_PACKET_INFO: S2Info,
                            S2_PACKET_QUERY_CALIBRATION: S2Calibration,
                            S2_PACKET_SET_ADVANCED_SETTINGS: S2AdvancedSettings,
                            S2_PACKET_SET_CONFIGURATION: S2Configuration,
+                            S2_PACKET_QUERY_CONFIGURATION: S2Configuration,
                            S2_PACKET_SET_FAST_PRESET:S2FastPresets,
                            S2_PACKET_DEBUG_INFO:S2Debug,
                            S2_PACKET_QUERY_BIT: S2BIT}
@@ -143,6 +145,7 @@ _info_query_packet = create_packet(S2_PACKET_INFO)
 _info_advanced_settings = create_packet(S2_PACKET_ADVANCED_INFO)
 _info_advanced_info = create_packet(S2_PACKET_ADVANCED_INFO)
 _settings_query_packet = create_packet(S2_PACKET_QUERY_SETTINGS)
+_configuration_query_packet = create_packet(S2_PACKET_QUERY_CONFIGURATION)
 _calibration_query_packet = create_packet(S2_PACKET_QUERY_CALIBRATION)
 _uptime_query_packet = create_packet(S2_PACKET_UPTIME)
 _reset_overcurrent_packet = create_packet(S2_PACKET_RESET_STATUS_FLAG, S2ResetStatus(S2_STATUS_OVERCURRENT))
@@ -180,6 +183,10 @@ class S2(S2Base):
     @property
     def settings(self):
         return self._settings
+
+    @property
+    def configuration(self):
+        return self._configuration
 
     @property
     def info(self):
@@ -331,6 +338,7 @@ class S2(S2Base):
         super(S2, self).__init__(th)
 
         self._settings = S2Settings.default()
+        self._configuration=S2Configuration.default()
         self._advancedSettings = S2AdvancedSettings.default()
         self._info = S2Info()
         self._debug_info = S2Debug()
@@ -410,6 +418,11 @@ class S2(S2Base):
     def reload_settings(self):
         self._query_packet(_settings_query_packet, self._settings,
                            expected_header=S2_PACKET_QUERY_SETTINGS,
+                           expected_response_time=5.0)
+
+    def reload_configuration(self):
+        self._query_packet(_configuration_query_packet, self._configuration,
+                           expected_header=S2_PACKET_QUERY_CONFIGURATION,
                            expected_response_time=5.0)
 
     def reload_advanced_info(self):
@@ -580,24 +593,24 @@ class S2(S2Base):
     def set_configuration(self, device_id=0, laser_id=b'', mode_auto_duty_limit_low = 0, mode_auto_duty_limit_high = 0, mode_auto_high_secur_delay=0,
                           lasing_min_current=0, internal_limit=0, modea_limit=0, modeb_limit=0, modecst_limit=0, modecss_limit=0,
                           mode_auto_high_limit=0, mode_auto_low_limit=0, integr_t_auto=0):
-        configuration = S2Configuration.default()
-        configuration.device_id = device_id
-        configuration.laser_id = laser_id
-        configuration.mode_auto_duty_limit_low = mode_auto_duty_limit_low
-        configuration.mode_auto_duty_limit_high = mode_auto_duty_limit_high
-        configuration.mode_auto_high_secur_delay=mode_auto_high_secur_delay
-        configuration.lasing_min_current = lasing_min_current
-        configuration.internal_limit = internal_limit
-        configuration.modea_limit = modea_limit
-        configuration.modeb_limit= modeb_limit
-        configuration.modecst_limit=modecst_limit
-        configuration.modecss_limit=modecss_limit
-        configuration.mode_auto_high_limit= mode_auto_high_limit
-        configuration.mode_auto_low_limit = mode_auto_low_limit
-        configuration.integr_t_auto=integr_t_auto
-        packet = create_packet(S2_PACKET_SET_CONFIGURATION, configuration)
-        return self._query_packet(packet, configuration, expected_header=S2_PACKET_SET_CONFIGURATION,
+        self._configuration.device_id = device_id
+        self._configuration.laser_id = laser_id
+        self._configuration.mode_auto_duty_limit_low = mode_auto_duty_limit_low
+        self._configuration.mode_auto_duty_limit_high = mode_auto_duty_limit_high
+        self._configuration.mode_auto_high_secur_delay=mode_auto_high_secur_delay
+        self._configuration.lasing_min_current = lasing_min_current
+        self._configuration.internal_limit = internal_limit
+        self._configuration.modea_limit = modea_limit
+        self._configuration.modeb_limit= modeb_limit
+        self._configuration.modecst_limit=modecst_limit
+        self._configuration.modecss_limit=modecss_limit
+        self._configuration.mode_auto_high_limit= mode_auto_high_limit
+        self._configuration.mode_auto_low_limit = mode_auto_low_limit
+        self._configuration.integr_t_auto=integr_t_auto
+        packet = create_packet(S2_PACKET_SET_CONFIGURATION, self._configuration)
+        self._query_packet(packet, self._configuration, expected_header=S2_PACKET_QUERY_CONFIGURATION,
                                   expected_response_time=5)
+        return self._configuration
 
     def reboot_to_bootloader(self):
         return self._query_packet(_bootloader_packet)

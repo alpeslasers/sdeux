@@ -29,8 +29,8 @@ if __name__ == '__main__':
         conf = dict(device_id=device_id, laser_id=laser_id, mode_auto_duty_limit_low=0.2, mode_auto_duty_limit_high=0.11, mode_auto_high_secur_delay= 1000000,
                                lasing_min_current=0, internal_limit=0.1, modea_limit=20, modeb_limit=20, modecst_limit=20,
                                modecss_limit=20, mode_auto_high_limit=20, mode_auto_low_limit=20, integr_t_auto=450000)
-        s2.set_configuration(**conf)
-        sleep(2)
+        print(s2.set_configuration(**conf))
+        sleep(1)
         s2config = dict(pulsing_mode='modeAUTO', pulse_period=1000, pulse_width=None, current_limit=20,
                         output_voltage_set_auto_high=5, output_voltage_set_auto_low=2, pulse_width_auto_high=300, pulse_width_auto_low=500, current_limit_mode=0)
         s2.set_settings(**s2config)
