@@ -82,8 +82,11 @@ if __name__ == '__main__':
 
             # Configure Measurement modeAB check pulse width pulse_width_A et pulse_width_B
             reset_all(power_supply, s2, wfg)
+            print(s2.configuration)
+            sleep(1)
             s2config = dict(pulsing_mode='modeAUTO', pulse_period=1000, pulse_width=None, current_limit=20,
-                            voltage_A=5, voltage_B=2, pulse_width_A=300, pulse_width_B=500, current_limit_mode=0)
+                            output_voltage_set_auto_high=5, output_voltage_set_auto_low=2, pulse_width_auto_high=300,
+                            pulse_width_auto_low=500, current_limit_mode=0)
             s2.set_settings(**s2config)
 
             oscillo.set_settings(channel=1, volt_scale_chan=3, offset_chan=0, chan_trig=1, time_scale=5e-6)

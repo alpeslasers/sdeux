@@ -26,8 +26,8 @@ if __name__ == '__main__':
         device_id = s2.info.device_id
         laser_id = s2.info.laser_id
         sleep(2)
-        conf = dict(device_id=device_id, laser_id=laser_id, mode_auto_duty_limit_low=0.2, mode_auto_duty_limit_high=0.11, mode_auto_high_secur_delay= 1000000,
-                               lasing_min_current=0, internal_limit=0.1, modea_limit=20, modeb_limit=20, modecst_limit=20,
+        conf = dict(device_id=device_id, laser_id=laser_id, mode_auto_duty_limit_low=0.13, mode_auto_duty_limit_high=0.11, mode_auto_high_secur_delay= 1000000,
+                               lasing_min_current=0, internal_limit=20, modea_limit=20, modeb_limit=20, modecst_limit=20,
                                modecss_limit=20, mode_auto_high_limit=20, mode_auto_low_limit=20, integr_t_auto=450000)
         print(s2.set_configuration(**conf))
         sleep(1)

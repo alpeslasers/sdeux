@@ -19,6 +19,7 @@ ssrv_url = gConfig2.get_url('ssrv_restless')
 def execute_AB_measurement(s2, s2config, oscillo, powersupply, jura):
     s2.reload_info()
     pulser_info = get_pulser_info(s2)
+    print(s2.query_debug_info())
     oscillo.set_trig_edge_source()
     oscillo.set_trig_level()
     amplitude_ref, pos_duty_ref, puls_width_ref, period_ref, x_ref, data_ref, vmax_chan4 = oscillo.drive()
