@@ -63,7 +63,7 @@ class S2Settings(S2Payload):
         """
         return S2Settings(pulse_period=500, pulse_width=1, output_voltage_set=1.0,
                           output_current_limit=0.1, pulsing_mode=S2_PULSING_OFF, bias_t=0, burst_ON=0, burst_OFF=0,
-                          output_voltage_set_auto_high=0, ooutput_voltage_set_auto_low=0, pulse_width_auto_high=0, pulse_width_auto_low=0,
+                          output_voltage_set_auto_high=0, output_voltage_set_auto_low=0, pulse_width_auto_high=0, pulse_width_auto_low=0,
                           current_limit_mode=S2_CURR_LIMIT_MODE_GLOBAL)
 
 
@@ -454,7 +454,7 @@ class S2(S2Base):
         self._query_packet(_reset_uptime_packet, expected_response_time=5.0)
 
     def set_settings(self, pulsing_mode=None, voltage=None, pulse_period=None, pulse_width=None, current_limit=None,
-                     voltage_A=None, voltage_B=None, pulse_width_A=None, pulse_width_B=None,
+                     output_voltage_set_auto_high=None, output_voltage_set_auto_low=None, pulse_width_auto_high=None, pulse_width_auto_low=None,
                      burst_ON=None, burst_OFF=None, current_limit_mode =None, persistent = False):
         """Set the specified settings. The unspecified parameters (=None) are not changed. Ramps up or down slowly the
         applied voltage"""
@@ -480,28 +480,28 @@ class S2(S2Base):
                                                                                            self._min_voltage,
                                                                                            self._max_voltage))
                 if pulsing_mode == S2_PULSING_MODE_A:
-                    self._settings.output_voltage_set_A = voltage
+                    self._settings.output_voltage_set_auto_high = voltage
                 elif pulsing_mode == S2_PULSING_MODE_B:
-                    self._settings.output_voltage_set_B = voltage
-                elif pulsing_mode == S2_PULSING_MODE_AB:
-                    self._settings.output_voltage_set_A = voltage
-                    self._settings.output_voltage_set_B = voltage
+                    self._settings.output_voltage_set_auto_low = voltage
+                elif pulsing_mode == S2_PULSING_MODE_AUTO:
+                    self._settings.output_voltage_set_auto_high = voltage
+                    self._settings.output_voltage_set_auto_low = voltage
                 else:
                     self._settings.output_voltage_set = voltage
 
-            if voltage_A is not None:
-                if not self._min_voltage <= voltage_A <= self._max_voltage:
-                    raise S2InvalidVoltageError('Voltage A {} out of bounds ({}, {})'.format(voltage_A,
+            if output_voltage_set_auto_high is not None:
+                if not self._min_voltage <= output_voltage_set_auto_high <= self._max_voltage:
+                    raise S2InvalidVoltageError('Voltage A {} out of bounds ({}, {})'.format(output_voltage_set_auto_high,
                                                                                              self._min_voltage,
                                                                                              self._max_voltage))
-                self._settings.output_voltage_set_A = voltage_A
+                self._settings.output_voltage_set_auto_high = output_voltage_set_auto_high
 
-            if voltage_B is not None:
-                if not self._min_voltage <= voltage_B <= self._max_voltage:
-                    raise S2InvalidVoltageError('Voltage B {} out of bounds ({}, {})'.format(voltage_B,
+            if output_voltage_set_auto_low is not None:
+                if not self._min_voltage <= output_voltage_set_auto_low <= self._max_voltage:
+                    raise S2InvalidVoltageError('Voltage B {} out of bounds ({}, {})'.format(output_voltage_set_auto_low,
                                                                                              self._min_voltage,
                                                                                              self._max_voltage))
-                self._settings.output_voltage_set_B = voltage_B
+                self._settings.output_voltage_set_auto_low = output_voltage_set_auto_low
 
             if pulse_period is not None:
                 if not self._pulse_period_min <= pulse_period <= self._pulse_period_max:
@@ -520,18 +520,18 @@ class S2(S2Base):
                                                         format(pulse_width,
                                                                self._pulse_width_min, self._pulse_width_max))
                 self._settings.pulse_width = int(1e-9 * pulse_width * self._info.pulse_clock_frequency)
-            if pulse_width_A is not None:
-                if not self._pulse_width_min <= pulse_width_A <= self._pulse_width_max:
+            if pulse_width_auto_high is not None:
+                if not self._pulse_width_min <= pulse_width_auto_high <= self._pulse_width_max:
                     raise S2InvalidPulseParamsError('Pulse width {} out of bounds ({}, {})'.
-                                                    format(pulse_width_A,
+                                                    format(pulse_width_auto_high,
                                                            self._pulse_width_min, self._pulse_width_max))
-                self._settings.pulse_width_A = int(1e-9 * pulse_width_A * self._info.pulse_clock_frequency)
-            if pulse_width_B is not None:
-                if not self._pulse_width_min <= pulse_width_B <= self._pulse_width_max:
+                self._settings.pulse_width_auto_high = int(1e-9 * pulse_width_auto_high * self._info.pulse_clock_frequency)
+            if pulse_width_auto_low is not None:
+                if not self._pulse_width_min <= pulse_width_auto_low <= self._pulse_width_max:
                     raise S2InvalidPulseParamsError('Pulse width {} out of bounds ({}, {})'.
-                                                    format(pulse_width_B,
+                                                    format(pulse_width_auto_low,
                                                            self._pulse_width_min, self._pulse_width_max))
-                self._settings.pulse_width_B = int(1e-9 * pulse_width_B * self._info.pulse_clock_frequency)
+                self._settings.pulse_width_auto_low = int(1e-9 * pulse_width_auto_low * self._info.pulse_clock_frequency)
             if current_limit is not None:
                 self._settings.output_current_limit = current_limit
 
@@ -577,19 +577,24 @@ class S2(S2Base):
         packet = create_packet(S2_PACKET_SET_ADVANCED_SETTINGS, self._advancedSettings)
         return self._query_packet(packet, self._advancedSettings)
 
-    def set_configuration(self, device_id=0, laser_id=b'', lasing_min_current=0, internal_limit=0, modea_limit=0, modeb_limit=0, modecst_limit=0,
-                               modecss_limit=0, modeab_a_limit=0, modeab_b_limit=0):
+    def set_configuration(self, device_id=0, laser_id=b'', mode_auto_duty_limit_low = 0, mode_auto_duty_limit_high = 0, mode_auto_high_secur_delay=0,
+                          lasing_min_current=0, internal_limit=0, modea_limit=0, modeb_limit=0, modecst_limit=0, modecss_limit=0,
+                          mode_auto_high_limit=0, mode_auto_low_limit=0, integr_t_auto=0):
         configuration = S2Configuration.default()
         configuration.device_id = device_id
         configuration.laser_id = laser_id
+        configuration.mode_auto_duty_limit_low = mode_auto_duty_limit_low
+        configuration.mode_auto_duty_limit_high = mode_auto_duty_limit_high
+        configuration.mode_auto_high_secur_delay=mode_auto_high_secur_delay
         configuration.lasing_min_current = lasing_min_current
         configuration.internal_limit = internal_limit
         configuration.modea_limit = modea_limit
         configuration.modeb_limit= modeb_limit
         configuration.modecst_limit=modecst_limit
         configuration.modecss_limit=modecss_limit
-        configuration.modeab_a_limit= modeab_a_limit
-        configuration.modeab_b_limit = modeab_b_limit
+        configuration.mode_auto_high_limit= mode_auto_high_limit
+        configuration.mode_auto_low_limit = mode_auto_low_limit
+        configuration.integr_t_auto=integr_t_auto
         packet = create_packet(S2_PACKET_SET_CONFIGURATION, configuration)
         return self._query_packet(packet, configuration, expected_header=S2_PACKET_SET_CONFIGURATION,
                                   expected_response_time=5)
