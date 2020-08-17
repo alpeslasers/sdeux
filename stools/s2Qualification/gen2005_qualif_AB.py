@@ -74,20 +74,20 @@ if __name__ == '__main__':
             # Initialize s2 and check if sample in DB
             s2 = init_driver(s2_th)
             s2.set_up()
-            s2.reload_info()
+            # s2.reload_info()
             check_sample_in_db(get_s2_name(s2), get_s2_type(s2))
 
             # configure the time scale for MCU_OUT voltage measurement (0 or 3.3V)
             oscillo.set_settings(channel=4, volt_scale_chan=2, offset_chan=0, chan_trig=2, time_scale=3e-6)
             oscillo.drive()
-            device_id = s2.info.device_id
-            laser_id = s2.info.laser_id
-            sleep(2)
-            conf = dict(device_id=device_id, laser_id=laser_id, mode_auto_duty_limit_low=0.2,
-                        mode_auto_duty_limit_high=0.1, mode_auto_high_secur_delay=0,
-                        lasing_min_current=0.1, internal_limit=20, modea_limit=20, modeb_limit=20, modecst_limit=20,
-                        modecss_limit=20, modeab_a_limit=20, modeab_b_limit=20, integr_t_auto=10000)
-            print(s2.set_configuration(**conf))
+            # device_id = s2.info.device_id
+            # laser_id = s2.info.laser_id
+            # sleep(2)
+            # conf = dict(device_id=device_id, laser_id=laser_id, mode_auto_duty_limit_low=0.2,
+            #             mode_auto_duty_limit_high=0.1, mode_auto_high_secur_delay=0,
+            #             lasing_min_current=0.1, internal_limit=20, modea_limit=20, modeb_limit=20, modecst_limit=20,
+            #             modecss_limit=20, modeab_a_limit=20, modeab_b_limit=20, integr_t_auto=10000)
+            # print(s2.set_configuration(**conf))
             reset_all(power_supply, s2, wfg)
             if not s2.status_label == 'ok':
                 raise Exception('S2 is not OK: {}'.format(s2.status_label))
