@@ -80,14 +80,6 @@ if __name__ == '__main__':
             # configure the time scale for MCU_OUT voltage measurement (0 or 3.3V)
             oscillo.set_settings(channel=4, volt_scale_chan=2, offset_chan=0, chan_trig=2, time_scale=3e-6)
             oscillo.drive()
-            # device_id = s2.info.device_id
-            # laser_id = s2.info.laser_id
-            # sleep(2)
-            # conf = dict(device_id=device_id, laser_id=laser_id, mode_auto_duty_limit_low=0.2,
-            #             mode_auto_duty_limit_high=0.1, mode_auto_high_secur_delay=0,
-            #             lasing_min_current=0.1, internal_limit=20, modea_limit=20, modeb_limit=20, modecst_limit=20,
-            #             modecss_limit=20, modeab_a_limit=20, modeab_b_limit=20, integr_t_auto=10000)
-            # print(s2.set_configuration(**conf))
             reset_all(power_supply, s2, wfg)
             if not s2.status_label == 'ok':
                 raise Exception('S2 is not OK: {}'.format(s2.status_label))
@@ -106,10 +98,10 @@ if __name__ == '__main__':
                              'INTERLOCK': 'OFF',
                              'IN_MOD_DIR': 'ON',
                              'GND': 'ON'})
-            wfg_frequencies = [10000, 10000, 30000, 30000]
-            wfg_burst_duties = [50, 5, 95, 5]
-            for freq, duty in zip(wfg_frequencies, wfg_burst_duties):
-                period=0.0009
+            wfg_frequencies = [10000, 5000, 3333]
+            wfg_burst_periods = [0.0009, 0.0018, 0.0027]
+            for freq, period in zip(wfg_frequencies, wfg_burst_periods):
+                duty=38
                 oscillo.time_scale = 50/freq
                 wfg.set_settings_burst(duty=duty, frequency=freq, burst_period=period, output=1)
                 wfg.enable_burst()
