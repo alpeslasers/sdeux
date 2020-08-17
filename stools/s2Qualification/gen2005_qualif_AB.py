@@ -106,11 +106,11 @@ if __name__ == '__main__':
                              'INTERLOCK': 'OFF',
                              'IN_MOD_DIR': 'ON',
                              'GND': 'ON'})
-            wfg_frequencies = [10000, 10000]
-            wfg_burst_duties = [50, 5]
+            wfg_frequencies = [10000, 10000, 30000, 30000]
+            wfg_burst_duties = [50, 5, 95, 5]
             for freq, duty in zip(wfg_frequencies, wfg_burst_duties):
                 period=0.0009
-                oscillo.time_scale = 100/freq
+                oscillo.time_scale = 50/freq
                 wfg.set_settings_burst(duty=duty, frequency=freq, burst_period=period, output=1)
                 wfg.enable_burst()
                 wg_info = '{}Hz_{}%'.format(freq, duty)
