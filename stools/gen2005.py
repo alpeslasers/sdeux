@@ -9,9 +9,8 @@ import threading
 import struct
 import logging
 
-from stools.communication import S2Payload, create_packet, S2Base
-from stools.defs import (S2_CURR_LIMIT_MODE_GLOBAL, S2_CURR_LIMIT_MODE_STORED, S2_PULSING_OFF, S2_PACKET_INFO, S2_PACKET_SET_SETTINGS,
-                                    S2_PACKET_QUERY_CONFIGURATION,
+from pirata.drivers.S2.communication import S2Payload, create_packet, S2Base
+from pirata.drivers.S2.defs import (S2_CURR_LIMIT_MODE_GLOBAL, S2_CURR_LIMIT_MODE_STORED, S2_PULSING_OFF, S2_PACKET_INFO, S2_PACKET_SET_SETTINGS,
                                     S2_PACKET_SET_PERSISTENT_SETTINGS, S2_PACKET_SET_FAST_PRESET, S2_PACKET_DEBUG_INFO,
                                     S2_PACKET_QUERY_SETTINGS, S2_PACKET_UPTIME, S2_PACKET_RESET_STATUS_FLAG,
                                     S2_PACKET_QUERY_CALIBRATION, S2_PACKET_SET_ADVANCED_SETTINGS, S2_STATUS_OVERCURRENT,
@@ -22,7 +21,7 @@ from stools.defs import (S2_CURR_LIMIT_MODE_GLOBAL, S2_CURR_LIMIT_MODE_STORED, S
                                     S2_PACKET_BOOTLOADER, S2_PACKET_QUERY_BIT, S2_PULSING_MODE_CSS, S2_PULSING_MODE_CST,
                                     S2_PULSING_INTERNAL_FAST,
                                     S2_STATUS_OVERVOLTAGE, S2_STATUS_OVERTEMP, S2_PACKET_ADVANCED_INFO)
-from stools.exceptions import (S2UndervoltageError, S2OvercurrentError, S2InvalidVoltageError,
+from pirata.drivers.S2.exceptions import (S2UndervoltageError, S2OvercurrentError, S2InvalidVoltageError,
                                           S2InvalidPulseParamsError)
 
 logger = logging.getLogger(__name__)
@@ -135,7 +134,6 @@ _packet_type_to_payload = {S2_PACKET_INFO: S2Info,
                            S2_PACKET_QUERY_CALIBRATION: S2Calibration,
                            S2_PACKET_SET_ADVANCED_SETTINGS: S2AdvancedSettings,
                            S2_PACKET_SET_CONFIGURATION: S2Configuration,
-                            S2_PACKET_QUERY_CONFIGURATION: S2Configuration,
                            S2_PACKET_SET_FAST_PRESET:S2FastPresets,
                            S2_PACKET_DEBUG_INFO:S2Debug,
                            S2_PACKET_QUERY_BIT: S2BIT}
@@ -145,7 +143,6 @@ _info_query_packet = create_packet(S2_PACKET_INFO)
 _info_advanced_settings = create_packet(S2_PACKET_ADVANCED_INFO)
 _info_advanced_info = create_packet(S2_PACKET_ADVANCED_INFO)
 _settings_query_packet = create_packet(S2_PACKET_QUERY_SETTINGS)
-_configuration_query_packet = create_packet(S2_PACKET_QUERY_CONFIGURATION)
 _calibration_query_packet = create_packet(S2_PACKET_QUERY_CALIBRATION)
 _uptime_query_packet = create_packet(S2_PACKET_UPTIME)
 _reset_overcurrent_packet = create_packet(S2_PACKET_RESET_STATUS_FLAG, S2ResetStatus(S2_STATUS_OVERCURRENT))
@@ -166,7 +163,7 @@ class S2(S2Base):
                             S2_PULSING_MODE_A: 'modeA',
                             S2_PULSING_MODE_B: 'modeB',
                             S2_PULSING_BURST: 'burst_mode',
-                            S2_PULSING_MODE_AB: 'modeAUTO',
+                            S2_PULSING_MODE_AB: 'modeAB',
                             S2_PULSING_MODE_CSS: 'modeCSS',
                             S2_PULSING_MODE_CST: 'modeCST',
                             S2_PULSING_INTERNAL_FAST: 'internal_fast'
@@ -183,10 +180,6 @@ class S2(S2Base):
     @property
     def settings(self):
         return self._settings
-
-    @property
-    def configuration(self):
-        return self._configuration
 
     @property
     def info(self):
@@ -338,7 +331,6 @@ class S2(S2Base):
         super(S2, self).__init__(th)
 
         self._settings = S2Settings.default()
-        self._configuration=S2Configuration.default()
         self._advancedSettings = S2AdvancedSettings.default()
         self._info = S2Info()
         self._debug_info = S2Debug()
@@ -420,11 +412,6 @@ class S2(S2Base):
                            expected_header=S2_PACKET_QUERY_SETTINGS,
                            expected_response_time=5.0)
 
-    def reload_configuration(self):
-        self._query_packet(_configuration_query_packet, self._configuration,
-                           expected_header=S2_PACKET_QUERY_CONFIGURATION,
-                           expected_response_time=5.0)
-
     def reload_advanced_info(self):
         self._query_packet(_info_advanced_info, self._advancedInfo)
 
@@ -468,7 +455,7 @@ class S2(S2Base):
 
     def set_settings(self, pulsing_mode=None, voltage=None, pulse_period=None, pulse_width=None, current_limit=None,
                      voltage_A=None, voltage_B=None, pulse_width_A=None, pulse_width_B=None,
-                     burst_ON=None, burst_OFF=None, current_limit_mode=None, persistent=False):
+                     burst_ON=None, burst_OFF=None, current_limit_mode =None, persistent = False):
         """Set the specified settings. The unspecified parameters (=None) are not changed. Ramps up or down slowly the
         applied voltage"""
         with self._lock:
@@ -590,27 +577,22 @@ class S2(S2Base):
         packet = create_packet(S2_PACKET_SET_ADVANCED_SETTINGS, self._advancedSettings)
         return self._query_packet(packet, self._advancedSettings)
 
-    def set_configuration(self, device_id=0, laser_id=b'', mode_auto_duty_limit_low = 0, mode_auto_duty_limit_high = 0, mode_auto_high_secur_delay=0,
-                          lasing_min_current=0, internal_limit=0, modea_limit=0, modeb_limit=0, modecst_limit=0, modecss_limit=0,
-                          modeab_a_limit=0, modeab_b_limit=0, integr_t_auto=0):
-        self._configuration.device_id = device_id
-        self._configuration.laser_id = laser_id
-        self._configuration.mode_auto_duty_limit_low = mode_auto_duty_limit_low
-        self._configuration.mode_auto_duty_limit_high = mode_auto_duty_limit_high
-        self._configuration.mode_auto_high_secur_delay=mode_auto_high_secur_delay
-        self._configuration.lasing_min_current = lasing_min_current
-        self._configuration.internal_limit = internal_limit
-        self._configuration.modea_limit = modea_limit
-        self._configuration.modeb_limit= modeb_limit
-        self._configuration.modecst_limit=modecst_limit
-        self._configuration.modecss_limit=modecss_limit
-        self._configuration.modeab_a_limit= modeab_a_limit
-        self._configuration.modeab_b_limit = modeab_b_limit
-        self._configuration.integr_t_auto=integr_t_auto
-        packet = create_packet(S2_PACKET_SET_CONFIGURATION, self._configuration)
-        self._query_packet(packet, self._configuration, expected_header=S2_PACKET_QUERY_CONFIGURATION,
+    def set_configuration(self, device_id=0, laser_id=b'', mode_auto_duty_limit_low = 0, mode_auto_duty_limit_high = 0, mode_auto_high_secur_delay=0, lasing_min_current=0, internal_limit=0, modea_limit=0, modeb_limit=0, modecst_limit=0,
+                               modecss_limit=0, modeab_a_limit=0, modeab_b_limit=0, integr_t_auto=0):
+        configuration = S2Configuration.default()
+        configuration.device_id = device_id
+        configuration.laser_id = laser_id
+        configuration.lasing_min_current = lasing_min_current
+        configuration.internal_limit = internal_limit
+        configuration.modea_limit = modea_limit
+        configuration.modeb_limit= modeb_limit
+        configuration.modecst_limit=modecst_limit
+        configuration.modecss_limit=modecss_limit
+        configuration.modeab_a_limit= modeab_a_limit
+        configuration.modeab_b_limit = modeab_b_limit
+        packet = create_packet(S2_PACKET_SET_CONFIGURATION, configuration)
+        return self._query_packet(packet, configuration, expected_header=S2_PACKET_SET_CONFIGURATION,
                                   expected_response_time=5)
-        return self._configuration
 
     def reboot_to_bootloader(self):
         return self._query_packet(_bootloader_packet)
@@ -630,7 +612,8 @@ class S2(S2Base):
 
 if __name__ == '__main__':
     import serial
-    from stools.serial_handler import S2SerialHandler
+    from pirata.drivers.S2.gen2005 import S2
+    from pirata.drivers.S2.serial_handler import S2SerialHandler
 
     #th = serial('/dev/ttyUSB0')
     th = S2SerialHandler('/dev/ttyUSB0')

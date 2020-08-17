@@ -91,9 +91,9 @@ if __name__ == '__main__':
             reset_all(power_supply, s2, wfg)
             if not s2.status_label == 'ok':
                 raise Exception('S2 is not OK: {}'.format(s2.status_label))
-            print(s2.configuration)
+            # print(s2.configuration)
             sleep(1)
-            s2config = dict(pulsing_mode='modeAUTO', pulse_period=1000, pulse_width=None, current_limit=20,
+            s2config = dict(pulsing_mode='modeAB', pulse_period=1000, pulse_width=None, current_limit=20,
                             voltage_A=5, voltage_B=2, pulse_width_A=300, pulse_width_B=500, current_limit_mode=0)
             s2.set_settings(**s2config)
             print(s2.settings)
