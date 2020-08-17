@@ -26,7 +26,7 @@ if __name__ == '__main__':
         device_id = s2.info.device_id
         laser_id = s2.info.laser_id
         sleep(2)
-        conf = dict(device_id=device_id, laser_id=laser_id, mode_auto_duty_limit_low=0.13, mode_auto_duty_limit_high=0.11, mode_auto_high_secur_delay= 1000000,
+        conf = dict(device_id=device_id, laser_id=laser_id, mode_auto_duty_limit_low=0.2, mode_auto_duty_limit_high=0.1, mode_auto_high_secur_delay= 0,
                                lasing_min_current=0, internal_limit=20, modea_limit=20, modeb_limit=20, modecst_limit=20,
                                modecss_limit=20, mode_auto_high_limit=20, mode_auto_low_limit=20, integr_t_auto=450000)
         s2.set_configuration(**conf)
@@ -35,6 +35,7 @@ if __name__ == '__main__':
         s2config = dict(pulsing_mode='modeAUTO', pulse_period=1000, pulse_width=None, current_limit=20,
                         voltage_A=5, voltage_B=2, pulse_width_A=400, pulse_width_B=500, current_limit_mode=0)
         print(s2.set_settings(**s2config))
+        print(s2.query_debug_info())
 
  
     finally:

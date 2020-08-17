@@ -83,11 +83,11 @@ if __name__ == '__main__':
             device_id = s2.info.device_id
             laser_id = s2.info.laser_id
             sleep(2)
-            conf = dict(device_id=device_id, laser_id=laser_id, mode_auto_duty_limit_low=0.15,
-                        mode_auto_duty_limit_high=0.09, mode_auto_high_secur_delay=0,
+            conf = dict(device_id=device_id, laser_id=laser_id, mode_auto_duty_limit_low=0.2,
+                        mode_auto_duty_limit_high=0.1, mode_auto_high_secur_delay=0,
                         lasing_min_current=0.1, internal_limit=20, modea_limit=20, modeb_limit=20, modecst_limit=20,
-                        modecss_limit=20, mode_auto_high_limit=20, mode_auto_low_limit=20, integr_t_auto=10000)
-            s2.set_configuration(**conf)
+                        modecss_limit=20, modeab_a_limit=20, modeab_b_limit=20, integr_t_auto=10000)
+            print(s2.set_configuration(**conf))
             reset_all(power_supply, s2, wfg)
             if not s2.status_label == 'ok':
                 raise Exception('S2 is not OK: {}'.format(s2.status_label))
