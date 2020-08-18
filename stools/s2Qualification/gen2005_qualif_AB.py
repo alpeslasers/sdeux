@@ -109,6 +109,7 @@ if __name__ == '__main__':
                 oscillo.set_trig_type_pulse_width(3e-6, 150, 1000, 2, 'POS')
                 sleep(2.0)
                 data = execute_AB_measurement(s2, s2config, oscillo, power_supply, jura)
+                print(s2.query_debug_info())
                 oscillo.channel = 1
                 data['test_scope'] = wg_info
                 save_measurement(get_s2_name(s2), data)
