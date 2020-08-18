@@ -102,7 +102,7 @@ if __name__ == '__main__':
             wfg_burst_periods = [0.0009]
             for freq, period in zip(wfg_frequencies, wfg_burst_periods):
                 duty=38
-                oscillo.time_scale = 50/freq
+                oscillo.time_scale = 0.001
                 wfg.set_settings_burst(duty=duty, frequency=freq, burst_period=period, output=1)
                 wfg.enable_burst()
                 wg_info = 'Inject A'
@@ -115,7 +115,7 @@ if __name__ == '__main__':
                 save_measurement(get_s2_name(s2), data)
                 wfg.disable()
             time.sleep(1)
-            oscillo.time_scale = 0.0002
+            oscillo.time_scale = 0.001
             wfg.inject_modeB_input()
             wg_info = 'Inject B'
             oscillo.set_trig_type_pulse_width(3e-6, 150, 1000, 2, 'POS')
