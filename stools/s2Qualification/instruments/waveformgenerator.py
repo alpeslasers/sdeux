@@ -81,17 +81,33 @@ class WaveFormGenerator:
 
 
     def inject_modeB_input(self):
-        self._write(':FUNC SQU')
-        self._write(':TRIG:SOUR IMM')
-        self._write(':FREQ:MODE LIST')
-        self._write(':LIST:DWELl +9.0E-04')
-        self._write(':LIST:FREQ +6.8,+1.11E+04,+1.11E+04,+1.11E+04')
-        self._write(':VOLT:HIGH +3.3')
-        self._write(':VOLT:LOW +0')
-        self._write(':OUTP 1')
+        self._write(':SOUR1:FUNC SQU')
+        self._write(':SOUR1:FUNC:SQU:DCYC 38')
+        self._write(':SOUR1:FREQ 10000')
+        self._write(':SOUR1:BURS:MODE TRIG')
+        self._write(':SOUR1:BURS:NCYC 3')
+        self._write(':SOUR1:BURS:INT:PER 0.0009')
+        self._write(':SOUR1:TRIG:SOUR IMM')
+        self._write(':SOUR1:BURS:STAT ON')
+        self._write(':SOUR1:VOLT:HIGH +3.3')
+        self._write(':SOUR1:VOLT:LOW +0')
+        self._write(':SOUR2:FUNC SQU')
+        self._write(':SOUR2:FUNC:SQU:PER 0.0009')
+        self._write(':SOUR2:FUNC:SQU:DCYC 67')
+        self._write(':SOUR2:VOLT:HIGH +3.3')
+        self._write(':SOUR2:VOLT:LOW +0')
+        self._write(':SOUR2:PHAS 180')
+        self._write(':SOUR1:SUM:SOUR CH2')
+        self._write(':SOUR1:SUM:STAT 1')
+        self._write(':OUTP1 1')
+        self._write(':OUTP2 1')
+
+
+
 
     def disable(self):
-        self._write(':OUTP 0')
+        self._write(':OUTP1 0')
+        self._write(':OUTP2 0')
 
 
 if __name__ == '__main__':
