@@ -115,7 +115,7 @@ if __name__ == '__main__':
                 save_measurement(get_s2_name(s2), data)
                 wfg.disable()
             time.sleep(1)
-            oscillo.time_scale = 0.005
+            oscillo.time_scale = 0.002
             wfg.inject_modeB_input()
             wg_info = 'Inject B'
             oscillo.set_trig_type_pulse_width(3e-6, 150, 1000, 2, 'POS')
