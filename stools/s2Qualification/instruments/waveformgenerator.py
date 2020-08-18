@@ -1,3 +1,6 @@
+from dms import DMSManager
+
+
 class WaveFormGenerator:
 
     @property
@@ -76,5 +79,29 @@ class WaveFormGenerator:
         self._write(':OUTP1:LOAD INF')
         self._write(':OUTP {}'.format(self.output))
 
+
+    def inject_modeB_input(self):
+        self._write(':FUNC SQU')
+        self._write(':TRIG:SOUR IMM')
+        self._write(':FREQ:MODE LIST')
+        self._write(':LIST:DWELl +8.0E-05,+8.0E-05,+8.0E-05,+6.6E-04')
+        self._write(':LIST:FREQ +3.33E+04,+3.33E+04,+3.33E+04,+1.64E+03')
+        self._write(':VOLT:HIGH +3.3')
+        self._write(':VOLT:LOW +0')
+        self._write(':OUTP 1')
+
     def disable(self):
         self._write(':OUTP 0')
+
+
+if __name__ == '__main__':
+    dms = DMSManager()
+    wg_th = dms.get_instrument('HP/S2/INSTRUMENTS/AGILENT-WG')  # waveform generator
+    with dms.acquire_instruments(wg_th):
+        wfg = WaveFormGenerator(wg_th)
+        try:
+            wfg.inject_modeB_input()
+        finally:
+            wfg.disable()
+
+
