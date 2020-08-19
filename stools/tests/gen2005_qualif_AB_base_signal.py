@@ -123,8 +123,8 @@ if __name__ == '__main__':
                     debug_info = s2.query_debug_info().output
                     values = [float(x) for x in debug_info.split(b',')[:4]]
                     upd['s2_dt_last_in'] = values[0]
-                    upd['s2_dt_last_out']= values[2]
-                    upd['s2_signal_level'] = values[1]
+                    upd['s2_ext_signal_level']= values[1]
+                    upd['s2_pw_overflown'] = values[2]
                     upd['s2_duty_cycle'] = values[3]
                     time.sleep(500E-6)
                     rsp.append(upd)
