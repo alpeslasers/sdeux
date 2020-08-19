@@ -7,7 +7,6 @@ from time import sleep
 import pandas
 from dms import DMSManager
 from configuration_manager import gConfig2
-from traits.tests.check_timing import old_style_value
 
 from stools.auto_detect import init_driver
 from stools.serial_handler import S2SerialHandler
@@ -80,6 +79,8 @@ if __name__ == '__main__':
             # Initialize s2 and check if sample in DB
             s2 = init_driver(s2_th)
             s2.set_up()
+            dbg_info = s2.query_debug_info()
+            debug_info = str(s2.query_debug_info().output)
             # s2.reload_info()
             check_sample_in_db(get_s2_name(s2), get_s2_type(s2))
 
@@ -110,16 +111,17 @@ if __name__ == '__main__':
             for freq, duty in zip(wfg_frequencies, wfg_dutys):
                 input_signal_pulse_width = float((1/freq)*(duty/100))
                 input_signal_period = float(1/freq)
-                upd = {'freq': freq, 'duty': duty, 'signal_type': 'simple', 'input_signal_pulse_width':input_signal_pulse_width,
-                       'input_signal_period':input_signal_period}
                 oscillo.time_scale = 0.0001
                 wfg.set_settings(freq, duty, 1)
                 wfg.enable_wfg()
                 for i in range(1000):
-                    debug_info = str(s2.query_debug_info())
-                    values = [float(x) for x in debug_info.split(',')[:3]]
+                    upd = {'freq': freq, 'duty': duty, 'signal_type': 'simple',
+                           'input_signal_pulse_width': input_signal_pulse_width,
+                           'input_signal_period': input_signal_period}
+                    debug_info = s2.query_debug_info().output
+                    values = [float(x) for x in debug_info.split(b',')[:4]]
                     upd['tim4_total_IN'] = values[0]
-                    upd['tim4_total_OUT']=values[2]
+                    upd['tim4_total_OUT']= values[2]
                     upd['calc_tim4_period'] = values[1]
                     duty = values[3]/1000
                     upd['duty_cycle'] = duty
