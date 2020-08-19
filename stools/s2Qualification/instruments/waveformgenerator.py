@@ -42,6 +42,9 @@ class WaveFormGenerator:
         self._output = None
         self._burst_period = None
 
+    def set_up(self):
+        self._write('*RST')
+
     def set_settings(self, frequency, duty, output):
         self._frequency = frequency
         self._duty = duty

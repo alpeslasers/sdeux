@@ -44,7 +44,7 @@ def reset_all(power_supply, s2, wfg):
     power_reset(power_supply, s2)
 
 
-firmware_trial = 1
+firmware_trial = 2
 
 
 if __name__ == '__main__':
@@ -65,6 +65,8 @@ if __name__ == '__main__':
         jura = Jura(ju_th)
         s2 = None
         wfg = WaveFormGenerator(wg_th)
+        wfg.set_up()
+        time.sleep(1.0)
         try:
             # Configure JURA and POWER SUPPLY
             jura.set_relays({'IN_ARM': 'OFF',
@@ -105,26 +107,26 @@ if __name__ == '__main__':
                              'INTERLOCK': 'OFF',
                              'IN_MOD_DIR': 'ON',
                              'GND': 'ON'})
-            wfg_frequencies = [1000, 1000]
-            wfg_dutys = [3, 90]
+            wfg_frequencies = [1000, 1000, 10000, 10000]
+            wfg_dutys = [30, 70, 40, 60]
             rsp = []
             for freq, duty in zip(wfg_frequencies, wfg_dutys):
-                input_signal_pulse_width = float((1/freq)*(duty/100))
-                input_signal_period = float(1/freq)
+                input_signal_pulse_width = float((1/freq)*(duty/100))*1E6
+                input_signal_period = float(1/freq)*1E6
                 oscillo.time_scale = 0.0001
                 wfg.set_settings(freq, duty, 1)
                 wfg.enable_wfg()
-                for i in range(1000):
+                for i in range(100):
                     upd = {'freq': freq, 'duty': duty, 'signal_type': 'simple',
                            'input_signal_pulse_width': input_signal_pulse_width,
                            'input_signal_period': input_signal_period}
                     debug_info = s2.query_debug_info().output
                     values = [float(x) for x in debug_info.split(b',')[:4]]
-                    upd['dt_last_in'] = values[0]
-                    upd['dt_last_out']= values[2]
-                    upd['calc_tim4_period'] = values[1]
-                    duty = values[3]/1000
-                    upd['calc_duty_cycle'] = duty
+                    upd['s2_dt_last_in'] = values[0]
+                    upd['s2_dt_last_out']= values[2]
+                    upd['s2_signal_level'] = values[1]
+                    upd['s2_duty_cycle'] = values[3]
+                    time.sleep(500E-6)
                     rsp.append(upd)
                 wg_info = '{}Hz_{}%'.format(freq, duty)
                 oscillo.set_trig_type_pulse_width(3e-6, 150, 1000, 2, 'POS')
