@@ -1,10 +1,13 @@
 import json
+import os
 import time
 from copy import copy
 from time import sleep
 
+import pandas
 from dms import DMSManager
 from configuration_manager import gConfig2
+from traits.tests.check_timing import old_style_value
 
 from stools.auto_detect import init_driver
 from stools.serial_handler import S2SerialHandler
@@ -40,6 +43,9 @@ def reset_all(power_supply, s2, wfg):
     wfg.disable()
     sleep(2.0)
     power_reset(power_supply, s2)
+
+
+firmware_trial = 1
 
 
 if __name__ == '__main__':
@@ -100,15 +106,24 @@ if __name__ == '__main__':
                              'GND': 'ON'})
             wfg_frequencies = [1000, 1000]
             wfg_dutys = [3, 90]
+            rsp = []
             for freq, duty in zip(wfg_frequencies, wfg_dutys):
+                input_signal_pulse_width = float((1/freq)*(duty/100))
+                input_signal_period = float(1/freq)
+                upd = {'freq': freq, 'duty': duty, 'signal_type': 'simple', 'input_signal_pulse_width':input_signal_pulse_width,
+                       'input_signal_period':input_signal_period}
                 oscillo.time_scale = 0.0001
                 wfg.set_settings(freq, duty, 1)
                 wfg.enable_wfg()
-                with open('debug{}{}.csv'.format(freq, duty), 'w') as file:
-                    for i in range(100):
-                        debug_info = s2.query_debug_info()
-                        file.write("{}".format(debug_info))
-                        file.write('\n')
+                for i in range(1000):
+                    debug_info = str(s2.query_debug_info())
+                    values = [float(x) for x in debug_info.split(',')[:3]]
+                    upd['tim4_total_IN'] = values[0]
+                    upd['tim4_total_OUT']=values[2]
+                    upd['calc_tim4_period'] = values[1]
+                    duty = values[3]/1000
+                    upd['duty_cycle'] = duty
+                    rsp.append(upd)
                 wg_info = '{}Hz_{}%'.format(freq, duty)
                 oscillo.set_trig_type_pulse_width(3e-6, 150, 1000, 2, 'POS')
                 sleep(2.0)
@@ -117,6 +132,8 @@ if __name__ == '__main__':
                 data['test_scope'] = wg_info
                 save_measurement(get_s2_name(s2), data)
                 wfg.disable()
+            df = pandas.DataFrame.from_records(rsp)
+            df.to_csv(os.path.expanduser('~/s2modeAB_tim4_trial_{}.csv'.format(firmware_trial)))
 
         finally:
             oscillo.cursor_position(0)  # position du curseur a 0 (delay)
