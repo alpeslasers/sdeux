@@ -107,7 +107,7 @@ if __name__ == '__main__':
                 with open('debug.csv', 'w') as file:
                     for i in range(100):
                         debug_info = s2.query_debug_info()
-                        file.write(debug_info)
+                        file.write("{}".format(debug_info))
                         file.write('\n')
                 wg_info = '{}Hz_{}%'.format(freq, duty)
                 oscillo.set_trig_type_pulse_width(3e-6, 150, 1000, 2, 'POS')
