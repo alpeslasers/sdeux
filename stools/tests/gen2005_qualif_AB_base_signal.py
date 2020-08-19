@@ -104,7 +104,7 @@ if __name__ == '__main__':
                 oscillo.time_scale = 0.0001
                 wfg.set_settings(freq, duty, 1)
                 wfg.enable_wfg()
-                with open('debug.csv', 'w') as file:
+                with open('debug{}{}.csv'.format(freq, duty), 'w') as file:
                     for i in range(100):
                         debug_info = s2.query_debug_info()
                         file.write("{}".format(debug_info))
