@@ -120,11 +120,11 @@ if __name__ == '__main__':
                            'input_signal_period': input_signal_period}
                     debug_info = s2.query_debug_info().output
                     values = [float(x) for x in debug_info.split(b',')[:4]]
-                    upd['tim4_total_IN'] = values[0]
-                    upd['tim4_total_OUT']= values[2]
+                    upd['dt_last_in'] = values[0]
+                    upd['dt_last_out']= values[2]
                     upd['calc_tim4_period'] = values[1]
                     duty = values[3]/1000
-                    upd['duty_cycle'] = duty
+                    upd['calc_duty_cycle'] = duty
                     rsp.append(upd)
                 wg_info = '{}Hz_{}%'.format(freq, duty)
                 oscillo.set_trig_type_pulse_width(3e-6, 150, 1000, 2, 'POS')
