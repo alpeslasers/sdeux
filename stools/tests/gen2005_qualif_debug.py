@@ -19,6 +19,8 @@ if __name__ == '__main__':
         s2 = init_driver(s2_th)
         s2.set_up()
         s2.reset_overcurrent_flag()
+        s2.set_configuration(device_id=0, laser_id=b'', mode_auto_duty_limit_low = 0.25, mode_auto_duty_limit_high = 0.3, mode_auto_high_secur_delay=0, lasing_min_current=0.1, internal_limit=20, modea_limit=20, modeb_limit=20, modecst_limit=20,
+                               modecss_limit=20, modeab_a_limit=20, modeab_b_limit=20, integr_t_auto=450)
         s2.reload_info()
         if not s2.status_label == 'ok':
             raise Exception('S2 is not OK: {}'.format(s2.status_label))

@@ -582,6 +582,10 @@ class S2(S2Base):
         configuration = S2Configuration.default()
         configuration.device_id = device_id
         configuration.laser_id = laser_id
+        configuration.mode_auto_duty_limit_low = mode_auto_duty_limit_low
+        configuration.mode_auto_duty_limit_high = mode_auto_duty_limit_high
+        configuration.mode_auto_high_secur_delay = mode_auto_high_secur_delay
+        configuration.integr_t_auto = integr_t_auto
         configuration.lasing_min_current = lasing_min_current
         configuration.internal_limit = internal_limit
         configuration.modea_limit = modea_limit
