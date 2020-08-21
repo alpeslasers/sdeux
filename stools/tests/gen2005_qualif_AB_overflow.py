@@ -124,8 +124,8 @@ if __name__ == '__main__':
                     values = [float(x) for x in debug_info.split(b',')[:4]]
                     upd['debug_tim12_ch1'] = values[0]
                     upd['debug_tim12_ch2']= values[1]
-                    upd['debug_tim12_counter'] = values[2]
-                    upd['ext_signal_level'] = values[3]
+                    upd['pulse_is_overflown'] = values[2]
+                    upd['overflow_state'] = values[3]
                     time.sleep(500E-6)
                     rsp.append(upd)
                 wg_info = '{}Hz_{}%'.format(freq, duty)
