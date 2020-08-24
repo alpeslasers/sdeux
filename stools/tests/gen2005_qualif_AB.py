@@ -98,14 +98,14 @@ if __name__ == '__main__':
                              'INTERLOCK': 'OFF',
                              'IN_MOD_DIR': 'ON',
                              'GND': 'ON'})
-            wfg_frequencies = [10000]
-            wfg_burst_periods = [0.0009]
-            for freq, period in zip(wfg_frequencies, wfg_burst_periods):
-                duty=38
+            wfg_frequencies = [16666, 25000]
+            wfg_burst_duties = [50, 50]
+            for freq, duty in zip(wfg_frequencies, wfg_burst_duties):
+                period = 0.000909
                 oscillo.time_scale = 0.001
-                wfg.set_settings_burst(duty=duty, frequency=freq, burst_period=period, output=1)
+                wfg.set_settings_burst(duty=duty, frequency=freq, burst_count=3, burst_period=period, output=1)
                 wfg.enable_burst()
-                wg_info = 'Inject A'
+                wg_info = 'Inject LW A'
                 oscillo.set_trig_type_pulse_width(3e-6, 150, 1000, 2, 'POS')
                 sleep(2.0)
                 data = execute_AB_measurement(s2, s2config, oscillo, power_supply, jura)
@@ -115,8 +115,25 @@ if __name__ == '__main__':
                 save_measurement(get_s2_name(s2), data)
                 wfg.disable()
             time.sleep(1)
+            wfg_frequencies = [12500, 12500]
+            wfg_burst_duties = [63, 56]
+            for freq, duty in zip(wfg_frequencies, wfg_burst_duties):
+                period = 0.000909
+                oscillo.time_scale = 0.001
+                wfg.set_settings_burst(duty=duty, frequency=freq, burst_count=3, burst_period=period, output=1)
+                wfg.enable_burst()
+                wg_info = 'Inject MW A'
+                oscillo.set_trig_type_pulse_width(3e-6, 150, 1000, 2, 'POS')
+                sleep(2.0)
+                data = execute_AB_measurement(s2, s2config, oscillo, power_supply, jura)
+                print(s2.query_debug_info())
+                oscillo.channel = 1
+                data['test_scope'] = wg_info
+                save_measurement(get_s2_name(s2), data)
+                wfg.disable()
             oscillo.time_scale = 0.001
-            wfg.inject_modeB_input()
+            time.sleep(1)
+            wfg.inject_freq_list()
             wg_info = 'Inject B'
             oscillo.set_trig_type_pulse_width(3e-6, 150, 1000, 2, 'POS')
             sleep(2.0)

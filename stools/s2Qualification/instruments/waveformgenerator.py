@@ -16,6 +16,10 @@ class WaveFormGenerator:
         return self._burst_period
 
     @property
+    def burst_count(self):
+        return self._burst_count
+
+    @property
     def output(self):
         return self._output
 
@@ -41,6 +45,7 @@ class WaveFormGenerator:
         self._duty = None
         self._output = None
         self._burst_period = None
+        self._burst_count = None
 
     def set_up(self):
         self._write('*RST')
@@ -50,11 +55,12 @@ class WaveFormGenerator:
         self._duty = duty
         self._output = output
 
-    def set_settings_burst(self, duty, frequency, burst_period, output):
+    def set_settings_burst(self, duty, frequency, burst_count, burst_period, output):
         self._duty = duty
         self._frequency = frequency
         self._burst_period = burst_period
         self._output = output
+        self._burst_count = burst_count
 
     def _write(self, cmd):
         self.th.write(cmd)
@@ -73,7 +79,7 @@ class WaveFormGenerator:
         self._write(':FUNC:SQU:DCYC {}'.format(self.duty))
         self._write(':FREQ {}'.format(self.frequency))
         self._write(':BURS:MODE TRIG')
-        self._write(':BURS:NCYC 3')
+        self._write(':BURS:NCYC {}'.format(self.burst_count))
         self._write(':BURS:INT:PER {}'.format(self.burst_period))
         self._write(':TRIG:SOUR IMM')
         self._write(':BURS:STAT ON')
@@ -83,12 +89,19 @@ class WaveFormGenerator:
         self._write(':OUTP {}'.format(self.output))
 
 
-    def inject_modeB_input(self):
+    def inject_freq_list(self):
         self._write(':FUNC SQU')
         self._write(':TRIG:SOUR IMM')
         self._write(':FREQ:MODE LIST')
-        self._write(':LIST:DWELl 0.00024')
-        self._write(':LIST:FREQ 1.11E+04, 1, 1')
+        self._write(':LIST:DWELl 0.00006')
+        self._write(':LIST:FREQ 3.3E+04, 1.67E+04, 1.67E+04, 1.67E+04, 1.67E+04, 1.67E+04, 1.67E+04, 1.67E+04'
+                    '1.67E+04, 1.67E+04, 1.67E+04, 1.67E+04, 1.4E+05')
+        self._write(':VOLT:HIGH +3.3')
+        self._write(':VOLT:LOW +0')
+        self._write(':OUTP 1')
+
+    def inject_arbitrary_input(self):
+        self._write(':FUNC ARB')
         self._write(':VOLT:HIGH +3.3')
         self._write(':VOLT:LOW +0')
         self._write(':OUTP 1')
@@ -103,7 +116,7 @@ if __name__ == '__main__':
     with dms.acquire_instruments(wg_th):
         wfg = WaveFormGenerator(wg_th)
         try:
-            wfg.inject_modeB_input()
+            wfg.inject_freq_list()
         finally:
             wfg.disable()
 

@@ -59,8 +59,8 @@ def calculate_duties(signal_x, signal_y, integration_time):
 
 
 if __name__ == '__main__':
-    period = 100
-    up_down_slices_LW_A = [60, 40]
+    period = 900
+    up_down_slices_LW_A = [30, 50, 30, 50, 30, 50, 610, 50]
     x, y = generate_signal(period,  up_down_slices_LW_A, 10)
     duties= calculate_duties(x, y, 450)
     plt.plot(x, y, 'c', label='duty min: {:.2f} max:{:.2f}'.format(np.amin(duties), np.amax(duties)))
