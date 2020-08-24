@@ -120,7 +120,7 @@ if __name__ == '__main__':
             for freq, duty in zip(wfg_frequencies, wfg_burst_duties):
                 period = 0.000909
                 oscillo.time_scale = 0.001
-                wfg.set_settings_burst(duty=duty, frequency=freq, burst_count=3, burst_period=period, output=1)
+                wfg.set_settings_burst(duty=duty, frequency=freq, burst_count=2, burst_period=period, output=1)
                 wfg.enable_burst()
                 wg_info = 'Inject MW A'
                 oscillo.set_trig_type_pulse_width(3e-6, 150, 1000, 2, 'POS')
