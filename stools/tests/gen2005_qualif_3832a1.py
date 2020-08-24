@@ -27,6 +27,11 @@ from stools.s2Qualification.ssrv_communication import check_sample_in_db, save_m
 from stools.utils.get_functions import get_s2_name, get_s2_type, get_pulser_info
 
 ssrv_url = gConfig2.get_url('ssrv_restless')
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--fw_rev', default='3832')
+args = parser.parse_args()
 
 if __name__ == '__main__':
     st = time.time()
@@ -265,8 +270,12 @@ if __name__ == '__main__':
                             'INTERLOCK': 'OFF',
                             'IN_MOD_DIR': 'ON',
                             'GND': 'ON'})
-            wfg_frequencies = [16, 16, 16, 1000, 1000, 4000, 4000, 16]
-            wfg_dutys = [0.01, 10, 16, 3, 80, 40, 96, 81]
+            if args.fw_rev == '3832':
+                wfg_frequencies = [16, 16, 16, 1000, 1000, 4000, 4000, 16]
+                wfg_dutys = [0.0007, 0.0018, 0.0022, 3, 80, 40, 96, 81]
+            else:
+                wfg_frequencies = [16, 16, 16, 1000, 1000, 4000, 4000, 16]
+                wfg_dutys = [0.01, 10, 16, 3, 80, 40, 96, 81]
             iiii = 0
             for freq, duty in zip(wfg_frequencies, wfg_dutys):
                 oscillo.time_scale = 0.2 / freq
@@ -319,6 +328,7 @@ if __name__ == '__main__':
                 save_measurement(get_s2_name(s2), data)
 
             oscillo.cursor_position(0) # position du curseur a 0 (delay)
+
             # =========================== INTERLOCKS ===================================================================
             # IN ARM ON
             jura.set_relays({'IN_ARM': 'ON',
