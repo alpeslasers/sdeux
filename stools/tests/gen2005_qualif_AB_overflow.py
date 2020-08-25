@@ -44,7 +44,7 @@ def reset_all(power_supply, s2, wfg):
     power_reset(power_supply, s2)
 
 
-firmware_trial = 2
+firmware_trial = 6
 
 
 if __name__ == '__main__':
@@ -107,13 +107,13 @@ if __name__ == '__main__':
                              'INTERLOCK': 'OFF',
                              'IN_MOD_DIR': 'ON',
                              'GND': 'ON'})
-            wfg_frequencies = [10, 10]
-            wfg_dutys = [50, 95]
+            wfg_frequencies = [1000, 1000, 10000, 10000]
+            wfg_dutys = [30, 70, 40, 60]
             rsp = []
             for freq, duty in zip(wfg_frequencies, wfg_dutys):
                 input_signal_pulse_width = float((1/freq)*(duty/100))*1E6
                 input_signal_period = float(1/freq)*1E6
-                oscillo.time_scale = 0.0001
+                oscillo.time_scale = 0.01
                 wfg.set_settings(freq, duty, 1)
                 wfg.enable_wfg()
                 for i in range(100):
@@ -124,7 +124,7 @@ if __name__ == '__main__':
                     values = [float(x) for x in debug_info.split(b',')[:4]]
                     upd['debug_tim12_ch1'] = values[0]
                     upd['debug_tim12_ch2']= values[1]
-                    upd['pulse_is_overflown'] = values[2]
+                    upd['duty_cal'] = values[2]
                     upd['overflow_state'] = values[3]
                     time.sleep(500E-6)
                     rsp.append(upd)
@@ -137,7 +137,7 @@ if __name__ == '__main__':
                 save_measurement(get_s2_name(s2), data)
                 wfg.disable()
             df = pandas.DataFrame.from_records(rsp)
-            df.to_csv(os.path.expanduser('~/s2modeAB_tim4_trial_{}.csv'.format(firmware_trial)))
+            df.to_csv(os.path.expanduser('~/s2modeAB_tim12_overflow_trial_{}.csv'.format(firmware_trial)))
 
         finally:
             oscillo.cursor_position(0)  # position du curseur a 0 (delay)
