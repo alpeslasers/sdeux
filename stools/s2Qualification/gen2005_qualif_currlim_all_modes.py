@@ -56,7 +56,7 @@ def check_overcurrent_all_pulsing_modes(s2, power_supply, oscillo, wfg, jura):
     reset_all(power_supply, s2, wfg)
 
     s2_settings = dict(pulsing_mode='internal', voltage=10, pulse_period=1000, pulse_width=1000, current_limit=20,  current_limit_mode=1)
-    s2.set_settings(**s2_settings)
+    s2.set_settings(**s2_settings, persistent = True)
 
     sleep(0.1)
 
@@ -70,7 +70,7 @@ def check_overcurrent_all_pulsing_modes(s2, power_supply, oscillo, wfg, jura):
     reset_all(power_supply, s2, wfg)
 
     s2_settings = dict(pulsing_mode='modeA', voltage=8, pulse_period=1000, pulse_width=1000, current_limit=20, current_limit_mode=1)
-    s2.set_settings(**s2_settings)
+    s2.set_settings(**s2_settings,  persistent = True)
 
     sleep(0.1)
     s2.reload_info()
@@ -83,7 +83,7 @@ def check_overcurrent_all_pulsing_modes(s2, power_supply, oscillo, wfg, jura):
     reset_all(power_supply, s2, wfg)
 
     s2_settings = dict(pulsing_mode='modeB', voltage=6, pulse_period=1000, pulse_width=1000, current_limit=20, current_limit_mode=1)
-    s2.set_settings(**s2_settings)
+    s2.set_settings(**s2_settings,  persistent = True)
     sleep(0.1)
     s2.reload_info()
     s2.reload_settings()
@@ -95,7 +95,7 @@ def check_overcurrent_all_pulsing_modes(s2, power_supply, oscillo, wfg, jura):
     reset_all(power_supply, s2, wfg)
 
     s2_settings = dict(pulsing_mode='modeCSS', voltage=6, pulse_period=1000, pulse_width=1000, current_limit=20, current_limit_mode=1)
-    s2.set_settings(**s2_settings)
+    s2.set_settings(**s2_settings,  persistent = True)
     sleep(0.1)
     s2.reload_info()
     s2.reload_settings()
@@ -107,7 +107,7 @@ def check_overcurrent_all_pulsing_modes(s2, power_supply, oscillo, wfg, jura):
     reset_all(power_supply, s2, wfg)
 
     s2_settings = dict(pulsing_mode='modeCST', voltage=6, pulse_period=1000, pulse_width=1000, current_limit=20, current_limit_mode=1)
-    s2.set_settings(**s2_settings)
+    s2.set_settings(**s2_settings,  persistent = True)
     sleep(0.1)
     s2.reload_info()
     s2.reload_settings()
@@ -119,7 +119,7 @@ def check_overcurrent_all_pulsing_modes(s2, power_supply, oscillo, wfg, jura):
     reset_all(power_supply, s2, wfg)
     s2_settings = dict(pulsing_mode='modeAB', pulse_period=1000, pulse_width=None, current_limit=20,
                     voltage_A=8, voltage_B=5, pulse_width_A=1000, pulse_width_B=1000, current_limit_mode=1)
-    s2.set_settings(**s2_settings)
+    s2.set_settings(**s2_settings,  persistent = True)
     sleep(0.1)
 
     jura.set_relays({'IN_ARM': 'OFF',
@@ -336,7 +336,7 @@ def check_all_curr_limits(s2):
 if __name__ == '__main__':
     st = time.time()
     dms = DMSManager()
-    s2_th = S2SerialHandler('/dev/tty.usbserial-FTV8G4AG') #s2
+    s2_th = S2SerialHandler('/dev/tty.CHIPIX-AL_FTV8G4AG')  # s2
     s2_th.open()
     oscillo_th = dms.get_instrument('HP/S2/INSTRUMENTS/DSOX')  #oscilloscope
     ju_th = dms.get_instrument('HP/S2/INSTRUMENTS/ARDUINO_UNO_200238_local')  #JURA
@@ -374,6 +374,8 @@ if __name__ == '__main__':
 
             device_id = s2.info.device_id
             laser_id = s2.info.laser_id
+
+            sleep(0.1)
 
             check_sample_in_db(get_s2_name(s2), get_s2_type(s2))
 

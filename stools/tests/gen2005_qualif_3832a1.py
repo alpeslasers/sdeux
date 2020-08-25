@@ -36,7 +36,7 @@ if __name__ == '__main__':
     st = time.time()
     dms = DMSManager()
     #s2_th = dms.get_instrument('HP/S2/INSTRUMENTS/CHIPIX-000')
-    s2_th = S2SerialHandler('/dev/tty.usbserial-FTV8G4AG') #s2
+    s2_th = S2SerialHandler('/dev/tty.CHIPIX-AL_FTV8G4AG')  # s2
     s2_th.open()
     oscillo_th = dms.get_instrument('HP/S2/INSTRUMENTS/DSOX')  #oscilloscope
     ju_th = dms.get_instrument('HP/S2/INSTRUMENTS/ARDUINO_UNO_200238_local')  #JURA

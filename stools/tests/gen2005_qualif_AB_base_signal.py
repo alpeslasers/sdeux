@@ -44,7 +44,7 @@ def reset_all(power_supply, s2, wfg):
     power_reset(power_supply, s2)
 
 
-firmware_trial = 2
+firmware_trial = 4
 
 
 if __name__ == '__main__':
