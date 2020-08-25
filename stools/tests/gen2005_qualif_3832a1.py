@@ -7,7 +7,6 @@ from dms import DMSManager
 from configuration_manager import gConfig2
 
 from stools.auto_detect import init_driver
-# pip install --upgrade pirata command line to update pirata
 from stools.serial_handler import S2SerialHandler
 
 from stools.s2Qualification.instruments.jura import Jura
@@ -319,9 +318,9 @@ if __name__ == '__main__':
                 sleep(2.0)
                 data = execute_AB_measurement(s2, s2config, oscillo, power_supply, jura)
                 oscillo.channel = 1
-                if duty < 10:
+                if duty < 25:
                     data['duty_cycle'] = round(s2config['pulse_width_A'] / s2config['pulse_period'], 2)
-                elif duty > 15:
+                elif duty > 30:
                     data['duty_cycle'] = round(s2config['pulse_width_B'] / s2config['pulse_period'], 2)
 
                 data['test_scope'] = wg_info

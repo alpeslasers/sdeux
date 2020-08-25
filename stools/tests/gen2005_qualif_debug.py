@@ -1,6 +1,4 @@
-import json
 import time
-from time import sleep
 from configuration_manager import gConfig2
 import logging
 from stools.auto_detect import init_driver
@@ -19,15 +17,14 @@ if __name__ == '__main__':
         s2 = init_driver(s2_th)
         s2.set_up()
         s2.reset_overcurrent_flag()
-        conf = dict(device_id=83, laser_id=b'', lasing_min_current=0, internal_limit=20,
-                    modea_limit=0.1, modeb_limit=20, modecst_limit=20, modecss_limit=20,
+        conf = dict(device_id=83, laser_id=b'', lasing_min_current=0.1, internal_limit=20,
+                    modea_limit=20, modeb_limit=20, modecst_limit=20, modecss_limit=20,
                     modeab_a_limit=20, modeab_b_limit=20)
-        print(s2.set_configuration(**conf))
+        s2.set_configuration(**conf)
+        print(s2.configuration)
         s2.reload_info()
         if not s2.status_label == 'ok':
             raise Exception('S2 is not OK: {}'.format(s2.status_label))
-
-
  
     finally:
         s2.set_settings(pulsing_mode='off')

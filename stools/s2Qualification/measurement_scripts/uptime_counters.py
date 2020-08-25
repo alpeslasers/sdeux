@@ -2,13 +2,7 @@ import json
 from dms import DMSManager
 from configuration_manager import gConfig2
 
-from pirata.drivers.S2.auto_detect import init_driver
-
-from elbit_scripts.s2Qualification.instruments.jura import Jura
-from elbit_scripts.s2Qualification.instruments.oscilloscope import Oscilloscope
-from elbit_scripts.s2Qualification.instruments.power_supply import PowerSupply
-from elbit_scripts.s2Qualification.ssrv_communication import check_sample_in_db, save_measurement
-from elbit_scripts.utils.get_functions import get_s2_name, get_s2_type, get_pulser_info
+from stools.utils.get_functions import get_s2_name, get_s2_type, get_pulser_info
 
 ssrv_url = gConfig2.get_url('ssrv_restless')
 

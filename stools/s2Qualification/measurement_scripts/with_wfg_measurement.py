@@ -1,7 +1,7 @@
 import json
 from time import sleep
 
-from elbit_scripts.utils.get_functions import get_pulser_info
+from stools.utils.get_functions import get_pulser_info
 
 
 def execute_wfg_measurement(s2, s2config, oscillo, powersupply, jura, second_channel):

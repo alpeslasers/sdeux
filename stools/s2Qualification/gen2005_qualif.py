@@ -7,7 +7,6 @@ from dms import DMSManager
 from configuration_manager import gConfig2
 
 from stools.auto_detect import init_driver
-# pip install --upgrade pirata command line to update pirata
 from stools.serial_handler import S2SerialHandler
 
 from stools.s2Qualification.instruments.jura import Jura

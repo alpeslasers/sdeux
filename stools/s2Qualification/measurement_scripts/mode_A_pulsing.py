@@ -1,14 +1,14 @@
 from dms import DMSManager
 from configuration_manager import gConfig2
 
-from pirata.drivers.S2.auto_detect import init_driver
+from stools.auto_detect import init_driver
 
-from elbit_scripts.s2Qualification.instruments.jura import Jura
-from elbit_scripts.s2Qualification.measurement_scripts.mode_internal_pulsing import execute_internal_measurement
-from elbit_scripts.s2Qualification.instruments.oscilloscope import Oscilloscope
-from elbit_scripts.s2Qualification.instruments.power_supply import PowerSupply
-from elbit_scripts.s2Qualification.ssrv_communication import check_sample_in_db, save_measurement
-from elbit_scripts.utils.get_functions import get_s2_name, get_s2_type
+from stools.s2Qualification.instruments.jura import Jura
+from stools.s2Qualification.measurement_scripts.mode_internal_pulsing import execute_internal_measurement
+from stools.s2Qualification.instruments.oscilloscope import Oscilloscope
+from stools.s2Qualification.instruments.power_supply import PowerSupply
+from stools.s2Qualification.ssrv_communication import check_sample_in_db, save_measurement
+from stools.utils.get_functions import get_s2_name, get_s2_type
 
 ssrv_url = gConfig2.get_url('ssrv_restless')
 
