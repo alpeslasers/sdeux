@@ -94,8 +94,7 @@ class WaveFormGenerator:
         self._write(':TRIG:SOUR IMM')
         self._write(':FREQ:MODE LIST')
         self._write(':LIST:DWELl 0.00006')
-        self._write(':LIST:FREQ 3.3E+04, 1.67E+04, 1.67E+04, 1.67E+04, 1.67E+04, 1.67E+04, 1.67E+04, 1.67E+04'
-                    '1.67E+04, 1.67E+04, 1.67E+04, 1.67E+04, 1.4E+05')
+        self._write(':LIST:FREQ 3.3E+04, 1.67E+04, 1.67E+04')
         self._write(':VOLT:HIGH +3.3')
         self._write(':VOLT:LOW +0')
         self._write(':OUTP 1')
