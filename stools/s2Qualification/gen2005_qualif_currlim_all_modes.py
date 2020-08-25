@@ -129,8 +129,8 @@ def check_overcurrent_all_pulsing_modes(s2, power_supply, oscillo, wfg, jura):
                      'IN_MOD_DIR': 'ON',
                      'GND': 'ON'})
     sleep(5.0)
-    freq = 16
-    duty = 10
+    freq = 1000
+    duty = 3
     oscillo.time_scale = 0.2 / freq
     wfg.set_settings(freq, duty, 1)
     sleep(2.0)
@@ -147,7 +147,7 @@ def check_overcurrent_all_pulsing_modes(s2, power_supply, oscillo, wfg, jura):
 
     s2_settings = dict(pulsing_mode='modeAB', pulse_period=1000, pulse_width=None, current_limit=20,
                        voltage_A=8, voltage_B=5, pulse_width_A=1000, pulse_width_B=1000, current_limit_mode=1)
-    s2.set_settings(**s2_settings)
+    s2.set_settings(**s2_settings, persistent = True )
     sleep(0.1)
     jura.set_relays({'IN_ARM': 'OFF',
                      'IN_SAFETY': 'OFF',
