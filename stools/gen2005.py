@@ -38,9 +38,11 @@ class S2Info(S2Payload):
                  'laser_id')
     _STRUCT = struct.Struct('<IHHffffffHII8s')
 
+
 class S2Debug(S2Payload):
     __slots__ = 'output',
     _STRUCT = struct.Struct('<60s')
+
 
 class S2AdvancedInfo(S2Payload):
     __slots__ = ('input_voltage_measured_raw', 'output_voltage_measured_raw',
@@ -113,9 +115,11 @@ class S2Configuration(S2Payload):
                                lasing_min_current=0, internal_limit=0, modea_limit=0, modeb_limit=0, modecst_limit=0,
                                modecss_limit=0, modeab_a_limit=0, modeab_b_limit=0, integr_t_auto=1000000 )
 
+
 class S2FastPresets(S2Payload):
     __slots__ = ('preset_number', 'pulse_period', 'pulse_width')
     _STRUCT = struct.Struct('<bII')
+
 
 class S2BIT(S2Payload):
     __slots__ = ('overcurrent_first', 'overcurrent_last', 'overcurrent_count', 'undervoltage_first',
@@ -138,7 +142,6 @@ _packet_type_to_payload = {S2_PACKET_INFO: S2Info,
                            S2_PACKET_SET_FAST_PRESET:S2FastPresets,
                            S2_PACKET_DEBUG_INFO:S2Debug,
                            S2_PACKET_QUERY_BIT: S2BIT}
-
 
 _info_query_packet = create_packet(S2_PACKET_INFO)
 _info_advanced_settings = create_packet(S2_PACKET_ADVANCED_INFO)

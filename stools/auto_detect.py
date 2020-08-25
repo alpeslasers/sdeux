@@ -31,12 +31,7 @@ class S2Generic(S2Base):
 
 def init_driver(th):
     s2 = S2Generic(th)
-    try:
-        hw_version = s2.get_hw_version()
-        logger.info('Detected S2 hw version {}'.format(hw_version))
-    except Exception as e:
-        logger.info(e, exc_info=1)
-        return None
+    hw_version = s2.get_hw_version()
     if hw_version == 4:
         return S2_gen4(th)
     elif hw_version == 5:
