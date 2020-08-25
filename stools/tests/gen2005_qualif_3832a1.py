@@ -270,8 +270,8 @@ if __name__ == '__main__':
                             'IN_MOD_DIR': 'ON',
                             'GND': 'ON'})
             if args.fw_rev == '3832':
-                wfg_frequencies = [16, 16, 16, 1000, 1000, 4000, 4000, 16]
-                wfg_dutys = [0.0007, 0.0018, 0.0022, 3, 80, 40, 96, 81]
+                wfg_frequencies = [1000, 1000, 4000, 4000, 16]
+                wfg_dutys = [3, 80, 40, 96, 81]
             else:
                 wfg_frequencies = [16, 16, 16, 1000, 1000, 4000, 4000, 16]
                 wfg_dutys = [0.01, 10, 16, 3, 80, 40, 96, 81]
