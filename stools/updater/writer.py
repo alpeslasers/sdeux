@@ -47,6 +47,14 @@ class FirmwareUpdater:
         self.s2SettingsAfter = None
         self.s2CalibrationAfter = None
         self.totalSteps = 6
+        if not os.path.exists(self.stm32flashPath):
+            raise Exception
+        if not os.path.exists(self.firmwarePath):
+            raise Exception
+        if not os.access(self.firmwarePath, os.R_OK):
+            raise Exception
+        if not os.access(self.stm32flashPath, os.X_OK):
+            raise Exception
 
     def connect(self):
         self.th = S2SerialHandler(self.port)
@@ -164,8 +172,7 @@ class FirmwareUpdater:
                     time.sleep(1)
         time.sleep(1)
 
-
-if __name__ == '__main__':
+def main():
     rootLogger = logging.getLogger()
     rootLogger.setLevel(logging.INFO)
     lfh = FileHandler(filename=os.path.expanduser('~/s2updater.log'))
@@ -176,8 +183,8 @@ if __name__ == '__main__':
     terminalLogger.addHandler(lsh)
 
     fwu = FirmwareUpdater(port='/dev/ttyUSB0',
-                          firmware_path='/updater/s2_2005_signed.bin',
-                          stm32flash_path='stm32flash',
+                          firmware_path='/home/pi/updater/s2_2005_signed.bin',
+                          stm32flash_path='/usr/bin/stm32flash',
                           new_firmware_version=3832)
 
     terminalLogger.info('Please connect S2 for update')
@@ -192,3 +199,7 @@ if __name__ == '__main__':
         time.sleep(1.0)
 
     fwu.execute()
+
+
+if __name__ == '__main__':
+    main()
