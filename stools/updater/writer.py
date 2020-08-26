@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import os
 import subprocess
+import sys
 import time
+from logging import FileHandler, Formatter, StreamHandler
+from logging.config import dictConfig
+from time import time, sleep
 
 from stools.auto_detect import init_driver
 from stools.serial_handler import S2SerialHandler
@@ -10,11 +15,13 @@ from stools.serial_handler import S2SerialHandler
 logger = logging.getLogger(__name__)
 terminalLogger = logging.getLogger('{}.{}'.format(__name__, 'terminal'))
 
-__author__ = 'gregory'
+__author__ = 'chiesa'
 __copyright__ = "Copyright 2018, Alpes Lasers SA"
 
 
 class FirmwareUpdater:
+
+    FINISHED_STEP = 'finished'
 
     def __init__(self,
                  port,
@@ -66,14 +73,17 @@ class FirmwareUpdater:
             self.disconnect()
 
     def log_step(self, step, message):
-        terminalLogger.info('[{}/{}, #{}] {}'.format(step if step != 'finished' else self.totalSteps,
-                                                     self.totalSteps,
-                                                     self.s2DeviceId,
-                                                     message))
+        terminalLogger.info('[{}/{}, S2 #{}] {}'.format(step if step != self.FINISHED_STEP else self.totalSteps,
+                                                        self.totalSteps,
+                                                        self.s2DeviceId,
+                                                        message))
 
     def execute(self):
         try:
             self.connect()
+            if self.s2Info.sw_version == self.newFirwareVersion:
+                self.log_step(self.FINISHED_STEP,
+                              'S2 already at firmware version {}: doing nothing.'.format(self.newFirwareVersion))
             self.s2Info = self.s2.info
             self.s2Settings = self.s2.settings
             self.s2Calibration = self.s2.calibration
@@ -81,10 +91,9 @@ class FirmwareUpdater:
             terminalLogger.info('Connected to S2 #{}.'
                                 '\n >> DO NOT DISCONNECT THE DEVICE! '
                                 '\n >> DO NOT SWITCH ANYTHING OFF'.format(self.s2DeviceId))
-            logger.info('S2Info; S2Settings; S2Calibration')
-            logger.info('{}; {}; {}'.format(self.s2Info.to_dict(),
-                                            self.s2Settings.to_dict(),
-                                            self.s2Calibration.to_dict()))
+            logger.info('before={}'.format(dict(info=self.s2Info.to_dict(),
+                                                settings=self.s2Settings.to_dict(),
+                                                calibration=self.s2Calibration.to_dict())))
             self.log_step(0, 'Rebooting to bootloader mode.')
             self.s2.reboot_to_bootloader()
             time.sleep(2)
@@ -95,7 +104,7 @@ class FirmwareUpdater:
             self.boot_to_firmware()
             self.log_step(3, 'Checking communication.')
             self.connect()
-            self.log_step(4, 'Rewrite calibration, laser_id and device_id.')
+            self.log_step(4, 'Rewriting configuration.')
             self.s2.apply_calibration(self.s2Calibration, store=True)
             self.s2.reload_calibration()
             self.s2.set_configuration(device_id=self.s2Info.device_id,
@@ -104,17 +113,23 @@ class FirmwareUpdater:
             self.s2InfoAfter = self.s2.info
             self.s2SettingsAfter = self.s2.settings
             self.s2CalibrationAfter = self.s2.calibration
-            logger.info('S2InfoAfter; S2SettingsAfter; S2CalibrationAfter')
-            logger.info('{}; {}; {}'.format(self.s2InfoAfter.to_dict(),
-                                            self.s2SettingsAfter.to_dict(),
-                                            self.s2CalibrationAfter.to_dict()))
+            logger.info('after={}'.format(dict(info=self.s2InfoAfter.to_dict(),
+                                               settings=self.s2SettingsAfter.to_dict(),
+                                               calibration=self.s2CalibrationAfter.to_dict())))
             self.disconnect()
             if self.is_correctly_updated():
-                self.log_step('finished', 'firmware update finalized.')
+                self.log_step(self.FINISHED_STEP, 'Firmware update finalized.')
             else:
-                self.log_step('finished', 'some errors occurred. Please submit log file to AlpesLasers.')
+                self.log_error_occurred()
+        except Exception as e:
+            logger.exception(e)
+            self.log_error_occurred()
         finally:
             self.disconnect()
+            terminalLogger.info('Update procedure finished: you may now disconnect the S2.')
+
+    def log_error_occurred(self):
+        terminalLogger.error('Some errors occurred. Please submit log file to AlpesLasers')
 
     def is_correctly_updated(self):
         return True
@@ -126,6 +141,7 @@ class FirmwareUpdater:
                 subprocess.check_call([self.stm32flashPath, '-b', '38400', '-g', '0', self.port])
                 break
             except Exception as e:
+                logger.info(e, exc_info=1)
                 retry_count -= 1
                 if retry_count == 0:
                     raise
@@ -140,7 +156,8 @@ class FirmwareUpdater:
                 subprocess.check_call([self.stm32flashPath, '-b', '38400', '-w',
                                        self.firmwarePath, self.port])
                 break
-            except Exception:
+            except Exception as e:
+                logger.info(e, exc_info=1)
                 retry_count -= 1
                 if retry_count == 0:
                     raise
@@ -149,47 +166,26 @@ class FirmwareUpdater:
         time.sleep(1)
 
 
-
-def update_multiple(fw_file, ports):
-    try:
-        with open(fw_file):
-            pass
-    except Exception as e:
-        logger.critical('Cannot open firmware file at "{}", {}'.format(fw_file, e))
-    failures = []
-    ports=['/dev/ttyUSB0']
-    for port in ports:
-        th = S2SerialHandler(port)
-        th.open()
-        try:
-            s2 = init_driver(th)
-            s2.set_up()
-            logger.info('[{}] Connected to S2 #{}; Loading bootloader...'.format(port, s2.device_id))
-            s2.reboot_to_bootloader()
-            time.sleep(2)
-        except Exception as e:
-            logger.error('[{}] Update FAILED!! Could not initialize S-2: {}'.format(port, e), exc_info=1)
-            failures.append(port)
-            continue
-        finally:
-            th.close()
-
-        try:
-            write_firmware(fw_file, port)
-        except Exception as e:
-            failures.append(port)
-            continue
-
-
-
 if __name__ == '__main__':
-    import argparse
-    logging.basicConfig(level=logging.INFO)
+    rootLogger = logging.getLogger()
+    rootLogger.setLevel(logging.INFO)
+    lfh = FileHandler(filename=os.path.expanduser('~/s2updater.log'))
+    lfh.setFormatter(Formatter(fmt='{asctime}:{levelname}: {message}', style='{'))
+    lfh.setLevel(logging.INFO)
+    rootLogger.addHandler(lfh)
+    lsh = StreamHandler(stream=sys.stdout)
+    terminalLogger.addHandler(lsh)
 
-    fw_file='/home/local/olgare/PycharmProjects/s2/gen2005/firmware/cubemx/s2_2005_signed.bin'
-    port='/dev/ttyUSB0'
+    fwu = FirmwareUpdater(port='/dev/ttyUSB0',
+                          firmware_path='/home/local/olgare/PycharmProjects/s2/gen2005/firmware/cubemx/s2_2005_signed.bin',
+                          stm32flash_path='stm32flash',
+                          new_firmware_version=3280)
 
-    try:
-        update_multiple(fw_file, port)
-    except Exception as e:
-        logger.error('[{}] Writing firmware failed. "{}"'.format(port, e))
+    terminalLogger.info('Please connect S2 for update')
+
+    while True:
+        if fwu.is_connected():
+            break
+        sleep(1.0)
+
+    fwu.execute()
