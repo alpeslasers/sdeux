@@ -361,7 +361,7 @@ class S2(S2Base):
         self._pulse_period_max = 42949672950
         self._pulse_width_min = 10
         self._pulse_width_max = 42949672950
-        self._max_API_version = 2020011802
+        self._max_API_version = 2020082601
         self._available_pulsing_modes = list(sorted(self.PULSING_MODES.keys(), key=lambda x: self.PULSING_MODES[x]))
 
     def set_up(self):

@@ -6,8 +6,6 @@ import subprocess
 import sys
 import time
 from logging import FileHandler, Formatter, StreamHandler
-from logging.config import dictConfig
-from time import time, sleep
 
 from stools.auto_detect import init_driver
 from stools.serial_handler import S2SerialHandler
@@ -81,9 +79,10 @@ class FirmwareUpdater:
     def execute(self):
         try:
             self.connect()
-            if self.s2Info.sw_version == self.newFirwareVersion:
+            if self.s2.info.sw_version == self.newFirwareVersion:
                 self.log_step(self.FINISHED_STEP,
                               'S2 already at firmware version {}: doing nothing.'.format(self.newFirwareVersion))
+                return
             self.s2Info = self.s2.info
             self.s2Settings = self.s2.settings
             self.s2Calibration = self.s2.calibration
@@ -179,13 +178,13 @@ if __name__ == '__main__':
     fwu = FirmwareUpdater(port='/dev/ttyUSB0',
                           firmware_path='/home/local/olgare/PycharmProjects/s2/gen2005/firmware/cubemx/s2_2005_signed.bin',
                           stm32flash_path='stm32flash',
-                          new_firmware_version=3280)
+                          new_firmware_version=3833)
 
     terminalLogger.info('Please connect S2 for update')
 
     while True:
         if fwu.is_connected():
             break
-        sleep(1.0)
+        time.sleep(1.0)
 
     fwu.execute()
