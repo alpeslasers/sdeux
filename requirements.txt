@@ -1,2 +1,1 @@
 pyserial
-s2_py

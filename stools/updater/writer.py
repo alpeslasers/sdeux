@@ -176,11 +176,15 @@ if __name__ == '__main__':
     terminalLogger.addHandler(lsh)
 
     fwu = FirmwareUpdater(port='/dev/ttyUSB0',
-                          firmware_path='/home/local/olgare/PycharmProjects/s2/gen2005/firmware/cubemx/s2_2005_signed.bin',
+                          firmware_path='/updater/s2_2005_signed.bin',
                           stm32flash_path='stm32flash',
-                          new_firmware_version=3833)
+                          new_firmware_version=3832)
 
     terminalLogger.info('Please connect S2 for update')
+
+    # check if only one S2 is connected
+    # if False:
+    #     sys.exit(1)
 
     while True:
         if fwu.is_connected():
