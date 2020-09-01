@@ -3,12 +3,11 @@
 import logging
 import os
 import subprocess
-import sys
 import time
-from logging import FileHandler, Formatter, StreamHandler
 
 from sdeux.auto_detect import init_driver
 from sdeux.serial_handler import S2SerialHandler
+
 
 logger = logging.getLogger(__name__)
 terminalLogger = logging.getLogger('{}.{}'.format(__name__, 'terminal'))
@@ -25,7 +24,9 @@ class FirmwareUpdater:
                  port,
                  firmware_path,
                  stm32flash_path,
-                 new_firmware_version):
+                 new_firmware_version,
+                 hw_version,
+                 device_serial=None):
         """
         :param port: the RS232 port path,
         :param firmware_path: the path to the firmware binary,
@@ -37,6 +38,7 @@ class FirmwareUpdater:
         self.firmwarePath = firmware_path
         self.stm32flashPath = stm32flash_path
         self.newFirwareVersion = int(new_firmware_version)
+        self.hwVersion = int(hw_version)
         self.s2DeviceId = None
         self.th = None
         self.s2 = None
@@ -46,7 +48,8 @@ class FirmwareUpdater:
         self.s2InfoAfter = None
         self.s2SettingsAfter = None
         self.s2CalibrationAfter = None
-        self.totalSteps = 6
+        self.deviceSerial = int(device_serial) if device_serial else None
+        self.totalSteps = None
         if not os.path.exists(self.stm32flashPath):
             raise Exception
         if not os.path.exists(self.firmwarePath):
@@ -84,7 +87,33 @@ class FirmwareUpdater:
                                                         self.s2DeviceId,
                                                         message))
 
-    def execute(self):
+    def install(self, resurrection=False):
+        if self.hwVersion == 2005 and self.deviceSerial is None:
+            raise RuntimeError('device serial must be specified for gen2005')
+        try:
+            self.totalSteps = 3
+            self.log_step(0, 'Writing firmware: DO NOT DISCONNECT THE DEVICE!!!')
+            self.write_firmware(resurrection)
+            self.log_step(1, 'Boot to operational mode')
+            if not resurrection:
+                self.boot_to_firmware()
+            self.log_step(2, 'Checking communication')
+            self.connect()
+            if not self.s2.sw_version == self.newFirwareVersion:
+                raise Exception('S-2 sw_version={}, but {} was expected'.format(self.s2.sw_version,
+                                                                                self.newFirwareVersion))
+            if self.hwVersion == 2005 and self.deviceSerial:
+                self.s2.set_configuration(device_id=self.deviceSerial)
+            self.disconnect()
+        except Exception as e:
+            logger.exception(e)
+            self.log_error_occurred()
+        finally:
+            self.disconnect()
+            terminalLogger.info('Update procedure finished: you may now disconnect the S2.')
+
+    def upgrade(self):
+        self.totalSteps = 6
         try:
             self.connect()
             if self.s2.info.sw_version == self.newFirwareVersion:
@@ -145,10 +174,14 @@ class FirmwareUpdater:
         retry_count = 3
         while retry_count > 0:
             try:
-                subprocess.check_call([self.stm32flashPath, '-b', '38400', '-g', '0', self.port])
+                subprocess.run([self.stm32flashPath,
+                                '-b', '38400', '-g', '0', self.port],
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE,
+                               check=True)
                 break
             except Exception as e:
-                logger.info(e, exc_info=1)
+                logger.debug(e, exc_info=1)
                 retry_count -= 1
                 if retry_count == 0:
                     raise
@@ -156,15 +189,29 @@ class FirmwareUpdater:
                     time.sleep(1)
         time.sleep(1)
 
-    def write_firmware(self):
+    def resurrection(self):
+        subprocess.run([self.stm32flashPath, '-g', '0', '-b', '38400', '-w',
+                        self.firmwarePath, self.port],
+                       stdout=subprocess.PIPE,
+                       stderr=subprocess.PIPE,
+                       check=True)
+
+    def write_firmware(self, resurrection):
         retry_count = 2
         while retry_count > 0:
             try:
-                subprocess.check_call([self.stm32flashPath, '-b', '38400', '-w',
-                                       self.firmwarePath, self.port])
+                params = [self.stm32flashPath]
+                if resurrection:
+                    params += ['-g', '0']
+                params += ['-b', '38400', '-w',
+                           self.firmwarePath, self.port]
+                subprocess.run(params,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE,
+                               check=True)
                 break
             except Exception as e:
-                logger.info(e, exc_info=1)
+                logger.debug(e, exc_info=1)
                 retry_count -= 1
                 if retry_count == 0:
                     raise
@@ -172,34 +219,3 @@ class FirmwareUpdater:
                     time.sleep(1)
         time.sleep(1)
 
-def main():
-    rootLogger = logging.getLogger()
-    rootLogger.setLevel(logging.INFO)
-    lfh = FileHandler(filename=os.path.expanduser('~/s2updater.log'))
-    lfh.setFormatter(Formatter(fmt='{asctime}:{levelname}: {message}', style='{'))
-    lfh.setLevel(logging.INFO)
-    rootLogger.addHandler(lfh)
-    lsh = StreamHandler(stream=sys.stdout)
-    terminalLogger.addHandler(lsh)
-
-    fwu = FirmwareUpdater(port='/dev/ttyUSB0',
-                          firmware_path='/home/pi/updater/s2_2005_signed.bin',
-                          stm32flash_path='/usr/bin/stm32flash',
-                          new_firmware_version=3832)
-
-    terminalLogger.info('Please connect S2 for update')
-
-    # check if only one S2 is connected
-    # if False:
-    #     sys.exit(1)
-
-    while True:
-        if fwu.is_connected():
-            break
-        time.sleep(1.0)
-
-    fwu.execute()
-
-
-if __name__ == '__main__':
-    main()

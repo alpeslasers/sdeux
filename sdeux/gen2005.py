@@ -395,6 +395,7 @@ class S2(S2Base):
             self.reload_settings()
             self.reload_calibration()
             self.reload_bit_stats()
+            self.reload_configuration()
 
     def shut_down(self):
         """Shuts down, stops s2 output"""
@@ -594,6 +595,8 @@ class S2(S2Base):
 
     def set_configuration(self, device_id=0, laser_id=b'', lasing_min_current=0, internal_limit=0, modea_limit=0, modeb_limit=0, modecst_limit=0,
                                modecss_limit=0, modeab_a_limit=0, modeab_b_limit=0):
+        if self.sw_version >= 3832:
+            self.reload_configuration()
         self._configuration.device_id = device_id
         self._configuration.laser_id = laser_id
         self._configuration.mode_auto_duty_limit_low = 0.3
@@ -609,8 +612,9 @@ class S2(S2Base):
         self._configuration.modeab_a_limit= modeab_a_limit
         self._configuration.modeab_b_limit = modeab_b_limit
         packet = create_packet(S2_PACKET_SET_CONFIGURATION, self._configuration)
-        self._query_packet(packet, self._configuration, expected_header=S2_PACKET_QUERY_CONFIGURATION,
-                           expected_response_time=5)
+        if self.sw_version >= 3832:
+            self._query_packet(packet, self._configuration, expected_header=S2_PACKET_QUERY_CONFIGURATION,
+                               expected_response_time=5)
         return self._configuration
 
     def reboot_to_bootloader(self):
