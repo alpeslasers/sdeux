@@ -196,7 +196,7 @@ class FirmwareUpdater:
                        stderr=subprocess.PIPE,
                        check=True)
 
-    def write_firmware(self, resurrection):
+    def write_firmware(self, resurrection=False):
         retry_count = 2
         while retry_count > 0:
             try:
