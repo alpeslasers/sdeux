@@ -11,6 +11,7 @@ import logging
 import os
 import sys
 import time
+from glob import glob
 from logging import FileHandler, Formatter, StreamHandler
 
 from sdeux.updater.writer import terminalLogger, FirmwareUpdater
@@ -27,19 +28,25 @@ def main():
         lsh = StreamHandler(stream=sys.stdout)
         terminalLogger.addHandler(lsh)
 
-        fwu = FirmwareUpdater(port='/dev/ttyUSB0',
+        devices = list(glob('/dev/tty.CHIPIX-*'))
+
+        if len(devices) == 0:
+            terminalLogger.info('Could not find any Chipi-X connected. Please connect one Chipi-X.')
+            sys.exit(1)
+
+        if len(devices) > 1:
+            terminalLogger.info('More than one Chipi-X are connected. Please connect only one Chipi-X.')
+            sys.exit(1)
+
+        fwu = FirmwareUpdater(port=devices[0],
                               firmware_path='/home/pi/updater/s2_2005_signed.bin',
                               stm32flash_path='/usr/bin/stm32flash',
-                              new_firmware_version=3832,
+                              new_firmware_version=3834,
                               hw_version=2005,
                               configuration=dict(mode_auto_duty_limit_low=0.25,
                                                  mode_auto_duty_limit_high=0.30))
 
         terminalLogger.info('Please connect S2 for update')
-
-        # check if only one S2 is connected
-        # if False:
-        #     sys.exit(1)
 
         while True:
             if fwu.is_connected():
