@@ -4,6 +4,7 @@ import logging
 import os
 import subprocess
 import time
+from copy import deepcopy
 
 from sdeux.auto_detect import init_driver
 from sdeux.serial_handler import S2SerialHandler
@@ -26,7 +27,8 @@ class FirmwareUpdater:
                  stm32flash_path,
                  new_firmware_version,
                  hw_version,
-                 device_serial=None):
+                 device_serial=None,
+                 configuration=None):
         """
         :param port: the RS232 port path,
         :param firmware_path: the path to the firmware binary,
@@ -48,6 +50,8 @@ class FirmwareUpdater:
         self.s2InfoAfter = None
         self.s2SettingsAfter = None
         self.s2CalibrationAfter = None
+        self.s2ConfigurationAfter = None
+        self.configuration = configuration or {}
         self.deviceSerial = int(device_serial) if device_serial else None
         self.totalSteps = None
         if not os.path.exists(self.stm32flashPath):
@@ -143,15 +147,23 @@ class FirmwareUpdater:
             self.log_step(4, 'Rewriting configuration.')
             self.s2.apply_calibration(self.s2Calibration, store=True)
             self.s2.reload_calibration()
-            self.s2.set_configuration(device_id=self.s2Info.device_id,
-                                      laser_id=self.s2Info.laser_id)
+
+            s2_config = self.configuration
+            s2_config.update(device_id=self.s2Info.device_id,
+                             laser_id=self.s2Info.laser_id)
+            self.s2.set_configuration(**s2_config)
             self.s2.reload_info()
+            self.s2.reload_configuration()
+            self.s2.reload_settings()
             self.s2InfoAfter = self.s2.info
             self.s2SettingsAfter = self.s2.settings
             self.s2CalibrationAfter = self.s2.calibration
+            self.s2ConfigurationAfter = self.s2.configuration
             logger.info('after={}'.format(dict(info=self.s2InfoAfter.to_dict(),
                                                settings=self.s2SettingsAfter.to_dict(),
-                                               calibration=self.s2CalibrationAfter.to_dict())))
+                                               calibration=self.s2CalibrationAfter.to_dict(),
+                                               configuration=self.s2ConfigurationAfter.to_dict())))
+
             self.disconnect()
             if self.is_correctly_updated():
                 self.log_step(self.FINISHED_STEP, 'Firmware update finalized.')
