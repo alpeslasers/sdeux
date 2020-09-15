@@ -68,6 +68,7 @@ class FirmwareUpdater:
         self.th.open()
         self.s2 = init_driver(self.th)
         self.s2.set_up()
+        self.s2.advanced_mode = True
 
     def disconnect(self):
         if self.th:
