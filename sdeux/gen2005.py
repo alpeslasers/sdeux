@@ -447,6 +447,7 @@ class S2(S2Base):
         self._set_settings_time = time.time()
 
     def apply_calibration(self, calibration, store=False):
+        self.check_advanced_mode()
         if store:
             packet = create_packet(S2_PACKET_STORE_CALIBRATION, calibration)
         else:
@@ -584,6 +585,7 @@ class S2(S2Base):
     def set_advanced_settings(self, DCDC_period=None,
                               DCDC_mode=None,
                               output_voltage_set_raw=None):
+        self.check_advanced_mode()
         if DCDC_period is not None:
             self._advancedSettings.DCDC_period = DCDC_period
         if DCDC_mode is not None:
@@ -596,6 +598,7 @@ class S2(S2Base):
     def set_configuration(self, device_id=0, laser_id=b'', lasing_min_current=0, internal_limit=0, modea_limit=0, modeb_limit=0, modecst_limit=0,
                                modecss_limit=0, modeab_a_limit=0, modeab_b_limit=0, mode_auto_duty_limit_low=None,
                           mode_auto_duty_limit_high=None):
+        self.check_advanced_mode()
         if self.sw_version >= 3832:
             self.reload_configuration()
         self._configuration.device_id = device_id
@@ -623,6 +626,7 @@ class S2(S2Base):
         return self._configuration
 
     def reboot_to_bootloader(self):
+        self.check_advanced_mode()
         return self._query_packet(_bootloader_packet)
 
     def configure_fast_mode_presets(self, preset_number = None, pulse_period= None, pulse_width= None):

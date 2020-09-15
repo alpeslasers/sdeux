@@ -478,6 +478,7 @@ class S2(S2Base):
     def set_advanced_settings(self, DCDC_period=None,
                               DCDC_mode=None,
                               output_voltage_set_raw=None):
+        self.check_advanced_mode()
         if DCDC_period is not None:
             self._advancedSettings.DCDC_period = DCDC_period
         if DCDC_mode is not None:
@@ -488,6 +489,7 @@ class S2(S2Base):
         return self._query_packet(packet, self._advancedSettings)
 
     def apply_calibration(self, calibration, store=False):
+        self.check_advanced_mode()
         if store:
             packet = create_packet(S2_PACKET_STORE_CALIBRATION, calibration)
         else:
@@ -496,6 +498,7 @@ class S2(S2Base):
                                   expected_response_time=5.0)
 
     def reboot_to_bootloader(self):
+        self.check_advanced_mode()
         return self._query_packet(_bootloader_packet)
 
 

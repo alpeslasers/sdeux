@@ -121,6 +121,11 @@ RETRY_NO = 'no_retry'
 
 class S2Base(object):
 
+    def check_advanced_mode(self):
+        if not self.advanced_mode:
+            raise RuntimeError('This is an advanced command that may compromise the device conformity. '
+                               'Please set the advanced_mode attribute to True to execute this command.')
+
     @property
     def comm_failure_rate_percent(self):
         return 100.0 * self._num_commands_failed / self._num_commands_sent if self._num_commands_sent > 0 else 0.0
@@ -160,6 +165,7 @@ class S2Base(object):
         self._num_commands_failed = 0
         self._ignore_comm_count = False
         self.retry_policy = retry_policy
+        self.advanced_mode = False
 
     def _read_packet(self, payload=None, expected_header=None, expected_response_time=None):
         """Reads a packet from the transport handler. Discards empty messages as they probably result from the first END
