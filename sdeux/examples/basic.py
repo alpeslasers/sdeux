@@ -39,7 +39,7 @@ try:
     th.open()
     s2 = init_driver(th)
     s2.set_up()
-    s2.retry_policy = RETRY_NO  # use this setting to raise a error
+    s2.retry_policy = retry_policy  
     print_status(s2)
 
 finally:
