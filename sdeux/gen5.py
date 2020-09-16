@@ -140,6 +140,10 @@ class S2(S2Base):
     STATUS_LABELS = {S2_STATUS_OK: 'ok',
                      S2_STATUS_OVERCURRENT: 'overcurrent',
                      S2_STATUS_UNDERVOLTAGE: 'undervoltage'}
+    
+    @property
+    def pulsing_mode(self):
+        return self._settings.pulsing_mode
 
     @property
     def settings(self):
