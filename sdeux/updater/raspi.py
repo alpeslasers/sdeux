@@ -28,14 +28,14 @@ def main():
         lsh = StreamHandler(stream=sys.stdout)
         terminalLogger.addHandler(lsh)
 
-        devices = list(glob('/dev/tty.CHIPIX-*'))
+        devices = list(glob('/dev/tty.CHIPIX-*')) + list(glob('/dev/tty.USBCOM-*'))
 
         if len(devices) == 0:
-            terminalLogger.info('Could not find any Chipi-X connected. Please connect one Chipi-X.')
+            terminalLogger.info('Could not find any Chipi-X or USBCOM connected. Please connect one.')
             sys.exit(1)
 
         if len(devices) > 1:
-            terminalLogger.info('More than one Chipi-X are connected. Please connect only one Chipi-X.')
+            terminalLogger.info('More than one Chipi-X or USBCOM are connected. Please connect only one.')
             sys.exit(1)
 
         fwu = FirmwareUpdater(port=devices[0],

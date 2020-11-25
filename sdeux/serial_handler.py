@@ -10,6 +10,10 @@ __author__ = 'gregory'
 __copyright__ = "Copyright 2018, Alpes Lasers SA"
 
 
+class S2CommunicationTimeout(Exception):
+    pass
+
+
 class S2SerialHandler(object):
     def __init__(self, port):
         self._serial = serial.Serial(baudrate=38400, timeout=0.2)
@@ -39,7 +43,7 @@ class S2SerialHandler(object):
         while True:
             c = self._serial.read(1)
             if not c:
-                raise Exception('Timeout')
+                raise S2CommunicationTimeout('Timeout')
             if c == END:
                 if msg:
                     return msg
